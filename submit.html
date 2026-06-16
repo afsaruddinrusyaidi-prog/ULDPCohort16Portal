@@ -7,7 +7,7 @@
 <meta name="description" content="House Captain submission area for ULDP 2026.">
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="favicon.ico">
-<link rel="stylesheet" href="assets/css/styles.css?v=9">
+<link rel="stylesheet" href="assets/css/styles.css?v=10">
 </head>
 <body data-page="submit">
 <header class="site"></header>
@@ -30,11 +30,12 @@
 
     <!-- GATE -->
     <div class="gate" id="gate">
+      <div class="lock">🔒</div>
       <h3>Captain access</h3>
-      <p style="color:var(--grey);font-size:.92rem;margin-top:8px">Enter the Captain access code shared in your briefing. If you've misplaced it, message the programme team.</p>
+      <p style="font-size:.92rem;margin-top:8px">Enter the Captain access code shared in your briefing. If you've misplaced it, message the programme team.</p>
       <input type="password" id="gate-code" placeholder="Access code" autocomplete="off">
       <div class="err" id="gate-err"></div>
-      <button class="btn btn-navy" id="gate-btn">Unlock</button>
+      <button class="btn btn-primary" id="gate-btn">Unlock <span class="arr">→</span></button>
     </div>
 
     <!-- GATED CONTENT -->

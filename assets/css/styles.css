@@ -72,7 +72,7 @@ header.site.scrolled .nav{height:66px}
 .nav .brand img{height:34px;width:auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4));transition:height .3s}
 header.site.scrolled .nav .brand img{height:30px}
 .nav .brand .t{font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:1.04rem;letter-spacing:.07em;line-height:1.12;color:#fff;padding-left:13px;border-left:1px solid rgba(255,255,255,.14)}
-.nav .brand .t small{display:block;margin-top:5px;font-family:var(--body);font-weight:600;font-size:.55rem;color:#8b93b2;letter-spacing:.2em}
+.nav .brand .t small{display:block;margin-top:5px;font-family:var(--display);font-weight:700;font-size:.56rem;background:linear-gradient(100deg,#FFD75A,var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.2em}
 @media(max-width:460px){.nav .brand .t{border-left:0;padding-left:0}.nav .brand .t small{display:none}}
 .nav ul{display:flex;gap:2px;list-style:none;align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);padding:5px;border-radius:999px}
 .nav ul li{display:flex}
@@ -181,13 +181,13 @@ header.site.scrolled .nav .brand img{height:30px}
 .geo.ring-pink{width:30px;height:30px;border:3px solid rgba(224,36,126,.4);border-radius:50%}
 
 /* ---------- Stats strip ---------- */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid rgba(255,255,255,.06);background:linear-gradient(180deg,#080b18,#0a0e1e)}
-.stats .st{padding:36px 18px;text-align:center;border-left:1px solid rgba(255,255,255,.07);transition:background .25s}
-.stats .st:first-child{border-left:0}
-.stats .st:hover{background:rgba(255,255,255,.03)}
-.stats .st b{display:block;font-family:var(--display);font-size:clamp(2.6rem,5.5vw,4.4rem);background:linear-gradient(135deg,#FFD75A,var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:.9}
-.stats .st small{font-family:var(--display);text-transform:uppercase;letter-spacing:.16em;color:#9aa2c0;font-size:.78rem}
-@media(max-width:680px){.stats{grid-template-columns:repeat(2,1fr)}.stats .st:nth-child(3){border-left:0}.stats .st:nth-child(3),.stats .st:nth-child(4){border-top:1px solid rgba(255,255,255,.07)}}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.06)}
+.stats .st{padding:34px 16px;text-align:center;background:#0a0e1e;transition:background .25s}
+.stats .st:hover{background:#0d1226}
+.stats .st b{display:block;font-family:var(--display);font-size:clamp(2.3rem,5vw,4rem);background:linear-gradient(135deg,#FFD75A,var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:.9}
+.stats .st small{font-family:var(--display);text-transform:uppercase;letter-spacing:.14em;color:#9aa2c0;font-size:.76rem}
+@media(max-width:860px){.stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.stats .st{padding:26px 12px}}
 
 /* ---------- Section heads ---------- */
 .sechead{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:48px;flex-wrap:wrap}
@@ -278,8 +278,9 @@ a.card{display:block}
 .house-card.builders{border-top:4px solid var(--builders)}.house-card.builders .edge{background:var(--builders)}
 .house-card.purpose{border-top:4px solid var(--purpose)}.house-card.purpose .edge{background:var(--purpose)}
 .house-card.connectors{border-top:4px solid var(--connectors)}.house-card.connectors .edge{background:var(--connectors)}
-.people{display:grid;grid-template-columns:repeat(10,1fr);gap:7px;margin-top:18px}
-.people i{display:block;aspect-ratio:1/1;border-radius:50% 50% 5px 5px;opacity:.85}
+.people{display:grid;grid-template-columns:repeat(10,1fr);gap:8px;margin-top:18px}
+.people i{display:block;aspect-ratio:1/1;opacity:.9;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='7' r='4.2'/%3E%3Cpath d='M3.5 22c0-5 3.8-8.3 8.5-8.3s8.5 3.3 8.5 8.3z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='7' r='4.2'/%3E%3Cpath d='M3.5 22c0-5 3.8-8.3 8.5-8.3s8.5 3.3 8.5 8.3z'/%3E%3C/svg%3E") center/contain no-repeat;transition:transform .2s,opacity .2s}
+.people i:hover{transform:translateY(-2px) scale(1.12);opacity:1}
 .visionaries .people i{background:var(--visionaries)}.builders .people i{background:var(--builders)}
 .purpose .people i{background:var(--purpose)}.connectors .people i{background:var(--connectors)}
 
@@ -453,10 +454,60 @@ h1,h2,h3,.sechead h2,.featrow .ft h3,.tl-item h3,.house-card h3,.htile h3{overfl
 /* Step rail: 3-up only on wide screens; clean single-column stack on phones/tablets */
 @media(min-width:901px){.steprail.cols3{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:900px){
-  .steprail{grid-template-columns:1fr!important;gap:20px}
+  .steprail{grid-template-columns:1fr!important;gap:18px}
   .steprail::before{display:none}
-  .steprail .stp{display:grid;grid-template-columns:60px 1fr;gap:16px;text-align:left;align-items:start}
-  .steprail .dot{margin:0}
+  .steprail .stp{display:grid;grid-template-columns:58px 1fr;gap:16px;text-align:left;align-items:center;padding:0}
+  .steprail .dot{width:54px;height:54px;font-size:1.35rem;margin:0;flex-shrink:0}
   .steprail .stp>*{min-width:0}
-  .steprail h4,.steprail p,.steprail .date{overflow-wrap:anywhere}
+  .steprail .date{font-size:.8rem;letter-spacing:.04em}
+  .steprail h4{font-size:1.05rem}
+  .steprail h4,.steprail p,.steprail .date{overflow-wrap:anywhere;word-break:break-word}
 }
+
+/* ============================================================
+   v3.4 — team cards, calendar card, venue/location, captain polish
+   ============================================================ */
+/* Fix: white contact-card names were inheriting band-deep's white h3 */
+.band-deep .contact-card h3{color:var(--ink)}
+.band-deep .contact-card .role{color:var(--muted)}
+.contact-card{border-top:4px solid var(--accent,var(--connectors))}
+.contact-card h3{color:var(--ink);margin-top:2px}
+.contact-card .avatar.photo{border:3px solid #fff;box-shadow:0 8px 24px rgba(0,0,0,.18),0 0 0 4px color-mix(in srgb,var(--accent,var(--connectors)) 22%,transparent)}
+.contact-card .links a.tel{background:var(--accent,var(--connectors))}
+@media(max-width:560px){.contact-card{padding:28px 22px}}
+
+/* Calendar tear-off card (House Reveal Day) */
+.cal{width:230px;margin:0 auto;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 28px 60px rgba(0,0,0,.4);position:relative;border:1px solid rgba(255,255,255,.5)}
+.cal::before,.cal::after{content:"";position:absolute;top:-9px;width:12px;height:20px;background:#cfd6e6;border-radius:4px;box-shadow:inset 0 -2px 3px rgba(0,0,0,.25);z-index:2}
+.cal::before{left:46px}.cal::after{right:46px}
+.cal .cal-top{background:linear-gradient(135deg,var(--pink),#c01566);color:#fff;font-family:var(--display);text-transform:uppercase;letter-spacing:.18em;font-size:.86rem;font-weight:700;padding:16px 0 13px;text-align:center}
+.cal .cal-day{font-family:var(--num);font-size:6.2rem;line-height:1;color:var(--ink);text-align:center;padding:14px 0 2px}
+.cal .cal-dow{text-align:center;font-family:var(--display);text-transform:uppercase;letter-spacing:.22em;font-size:.92rem;color:var(--muted)}
+.cal .cal-tag{text-align:center;font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-size:.84rem;color:var(--pink);padding:8px 0 22px}
+.reveal-layout{display:grid;grid-template-columns:auto 1fr;gap:46px;align-items:center;justify-items:center;max-width:760px;margin:34px auto 0}
+@media(max-width:680px){.reveal-layout{grid-template-columns:1fr;gap:30px}}
+
+/* Venue / location section */
+.venue{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;margin-top:36px}
+.venue .shot{position:relative;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-lg)}
+.venue .shot img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;transition:transform .5s ease}
+.venue .shot:hover img{transform:scale(1.05)}
+.venue .shot .pin{position:absolute;left:16px;top:16px;background:rgba(11,16,30,.85);backdrop-filter:blur(6px);color:#fff;font-family:var(--display);text-transform:uppercase;letter-spacing:.08em;font-size:.78rem;padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.18)}
+.venue .info h3{font-family:var(--display);text-transform:uppercase;font-size:clamp(1.5rem,3vw,2.1rem);margin-bottom:10px}
+.venue .info .addr{color:var(--muted);margin-bottom:18px;line-height:1.55}
+.venue .vfeat{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 24px}
+.venue .vfeat span{background:var(--cream);border:1px solid var(--line);padding:8px 14px;border-radius:999px;font-size:.82rem;font-weight:700;color:var(--ink-soft)}
+@media(max-width:780px){.venue{grid-template-columns:1fr;gap:24px}}
+.band-deep .venue .vfeat span{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#dce1f1}
+
+/* Captain access gate — elevated */
+.gate{position:relative;max-width:440px;margin:0 auto;background:linear-gradient(165deg,var(--dark2),var(--dark));border:1px solid rgba(255,255,255,.1);box-shadow:0 30px 70px rgba(0,0,0,.4);padding:44px 38px;border-radius:var(--radius-lg);text-align:center;border-top:none;overflow:hidden}
+.gate::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,var(--visionaries),var(--connectors),var(--yellow),var(--pink))}
+.gate .lock{width:64px;height:64px;margin:0 auto 18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(245,179,12,.14);border:1px solid rgba(245,179,12,.4)}
+.gate h3{font-family:var(--display);text-transform:uppercase;font-size:1.7rem;color:#fff}
+.gate p{color:#aeb6ce!important}
+.gate input{width:100%;padding:15px 18px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.16);border-radius:12px;font-size:1rem;margin:18px 0 6px;font-family:var(--body);color:#fff;text-align:center;letter-spacing:.12em}
+.gate input::placeholder{color:#8b93b2;letter-spacing:.04em}
+.gate input:focus{outline:none;border-color:var(--yellow);background:rgba(255,255,255,.09)}
+.gate .err{color:#ff8fb0;font-size:.85rem;min-height:1.2em;margin-bottom:10px}
+.gate .btn{width:100%;justify-content:center}
