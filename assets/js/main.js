@@ -26,17 +26,19 @@ document.addEventListener("partials:ready", function () {
     });
   }
 
-  // scroll progress bar
+  // scroll progress bar + sticky-header condensed state
   var bar = document.getElementById("scrollbar");
-  if (bar) {
-    var onScroll = function () {
-      var h = document.documentElement;
+  var header = document.querySelector("header.site");
+  var onScroll = function () {
+    var h = document.documentElement;
+    if (bar) {
       var max = h.scrollHeight - h.clientHeight;
       bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-  }
+    }
+    if (header) header.classList.toggle("scrolled", h.scrollTop > 12);
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
 });
 
 /* scroll reveal — staggered */
