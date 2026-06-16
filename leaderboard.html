@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaderboard — ULDP 2026 Portal</title>
+<meta name="description" content="Live House standings for ULDP 2026 Cohort 16 — the Championship race, updated throughout the programme.">
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="assets/css/styles.css?v=2">
+</head>
+<body data-page="leaderboard">
+<header class="site"></header>
+
+<div class="hero">
+  <span class="geo dia-yellow" style="left:6%;bottom:20%"></span>
+  <span class="geo tri-teal" style="right:5%;top:16%"></span>
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">The championship</p>
+      <h1>House Standings</h1>
+      <p class="sub">Every point your House earns lands here. What earns them stays a mystery — show up, give everything, watch the board move.</p>
+    </div>
+    <div class="photo"><img src="assets/img/photos/hero-leaderboard.jpg" alt="ULDP teams competing on stage"></div>
+  </div>
+</div>
+
+<!-- LIVE BOARD -->
+<section>
+  <div class="wrap">
+    <div id="lb-live">
+      <div class="lb-card reveal">
+        <div id="lb-rows"></div>
+        <div class="legend" id="lb-legend"></div>
+        <div class="lb-updated" id="lb-updated"></div>
+      </div>
+
+      <div style="margin-top:54px" class="reveal">
+        <div class="center">
+          <p class="eyebrow">Individual race</p>
+          <h2>House MVP</h2>
+          <p class="lead" style="margin:0 auto">Alongside the House race, every member builds a personal tally. The top contributor in each House is crowned House MVP at graduation.</p>
+        </div>
+        <div class="mvp-grid" id="mvp-grid" style="margin-top:30px"></div>
+      </div>
+    </div>
+
+    <!-- PRE-LAUNCH PLACEHOLDER -->
+    <div id="lb-pre" style="display:none">
+      <div class="lb-card lb-placeholder reveal">
+        <p class="eyebrow" style="color:var(--yellow)">Standings locked</p>
+        <p class="big">Coming on House Reveal Day</p>
+        <p style="color:#A9B1C8;max-width:50ch;margin:14px auto 0">The Championship begins the moment the four Houses are revealed. Check back then — and bring your House pride.</p>
+      </div>
+    </div>
+
+    <div class="note reveal">
+      <b>How it works (the short version):</b> Houses earn points across three fronts — <b>Community</b>, <b>Challenges</b> and <b>Spirit</b>. Points are verified by the programme team before they appear here. The rest? You'll find out when it matters. 🤫
+    </div>
+  </div>
+</section>
+
+<footer class="site"></footer>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/include.js"></script>
+<script src="assets/js/main.js"></script>
+<script src="assets/js/leaderboard.js"></script>
+</body>
+</html>

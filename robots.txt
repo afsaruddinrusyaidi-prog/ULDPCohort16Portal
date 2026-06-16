@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /submit.html
+Sitemap: https://portal.example.com/sitemap.xml
