@@ -132,7 +132,10 @@ header.site{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);ba
 .band{background:var(--cream)}
 .band .card{box-shadow:0 8px 26px rgba(20,27,51,.07)}
 /* deep navy band — the dark moments between light sections */
-.band-deep{background:var(--navy);color:#E6E9F2}
+.band-deep{background:linear-gradient(160deg,var(--navy3) 0%,var(--navy) 52%,var(--navy2) 100%);color:#E6E9F2;position:relative;overflow:hidden}
+.band-deep::before{content:"";position:absolute;top:-160px;right:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(41,171,226,.16),transparent 62%);pointer-events:none}
+.band-deep::after{content:"";position:absolute;bottom:-180px;left:-120px;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(247,200,66,.10),transparent 64%);pointer-events:none}
+.band-deep .wrap{position:relative;z-index:1}
 .band-deep h2{color:#fff}
 .band-deep .eyebrow{color:var(--yellow)}
 .band-deep .lead{color:#A9B1C8}
@@ -276,3 +279,39 @@ footer.site .base{border-top:1px solid #232C49;padding-top:22px;display:flex;jus
 .pill-row span{background:var(--paper);box-shadow:var(--shadow);padding:9px 18px;border-radius:999px;font-size:.85rem;font-weight:500;color:var(--navy2)}
 .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
 .reveal.in{opacity:1;transform:none}
+
+/* ---------- v3 polish ---------- */
+/* gentle lift on interactive cards */
+.card,.house-card,.contact-card,.mvp{transition:transform .22s ease,box-shadow .22s ease}
+.card:hover,.contact-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+a.card:hover{text-decoration:none}
+
+/* photo avatars on the contact cards */
+.contact-card .avatar.photo{padding:0;overflow:hidden;background:var(--cream);width:104px;height:104px;box-shadow:0 8px 22px rgba(20,27,51,.16);border:3px solid #fff}
+.contact-card .avatar.photo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.contact-card h3{margin-top:2px;font-size:1.22rem}
+.contact-card .links a{transition:background .15s ease,color .15s ease}
+.contact-card .links a:hover{background:var(--navy);color:#fff;text-decoration:none}
+.contact-card .links a.tel{background:var(--teal);color:#fff}
+.contact-card .links a.tel:hover{background:var(--navy)}
+
+/* dark-section helpers so cards/eyebrows read well on band-deep */
+.band-deep h3{color:#fff}   /* bare headings; cards/steps keep their navy override above */
+.band-deep .eyebrow{color:var(--yellow)}
+.band-deep .card p{color:#4a5168}
+.band-deep .lead{color:#AEB6CE}
+.band-deep .pill-row span{background:rgba(255,255,255,.06);color:#E6E9F2;box-shadow:none;border:1px solid rgba(255,255,255,.12)}
+.band-deep .pill-row span a{color:var(--yellow)}
+
+/* glassy stat/feature card variant for dark bands */
+.glass{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-lg);padding:30px;backdrop-filter:blur(6px)}
+.glass h3{color:#fff}
+.glass p{color:#AEB6CE;font-size:.95rem}
+.glass .icon{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;margin-bottom:14px}
+
+/* section divider flourish */
+.flourish{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 auto 6px}
+.flourish i{display:block;width:8px;height:8px;border-radius:2px;transform:rotate(45deg)}
+.flourish i:nth-child(1){background:var(--teal)}
+.flourish i:nth-child(2){background:var(--yellow)}
+.flourish i:nth-child(3){background:var(--pink)}

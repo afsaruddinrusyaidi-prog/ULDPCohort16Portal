@@ -5,6 +5,12 @@ document.addEventListener("partials:ready", function () {
   document.querySelectorAll('.nav a[data-page]').forEach(function (a) {
     if (a.dataset.page === page) a.classList.add("active");
   });
+  // discreet staff console link (only when configured)
+  var staff = document.getElementById("staff-link");
+  if (staff && window.ULDP && ULDP.STAFF_CONSOLE_URL) {
+    staff.href = ULDP.STAFF_CONSOLE_URL;
+    staff.style.display = "inline";
+  }
   // hamburger
   var burger = document.querySelector(".nav .burger");
   var menu = document.getElementById("nav-menu");

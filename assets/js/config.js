@@ -9,6 +9,10 @@ window.ULDP = {
   // Embedded Points Claim Google Form (the "embed" URL ending in ?embedded=true)
   FORM_EMBED_URL: "",                // e.g. "https://docs.google.com/forms/d/e/XXXX/viewform?embedded=true"
 
+  // Staff approval console — same Apps Script /exec URL + "?page=staff".
+  // Leave blank to hide the discreet "Staff" footer link.
+  STAFF_CONSOLE_URL: "",             // e.g. "https://script.google.com/macros/s/XXXX/exec?page=staff"
+
   // Captain access code for submit.html (client-side gate; the Form itself
   // should ALSO restrict to logged-in Google accounts for real protection)
   CAPTAIN_CODE: "C16-CAPTAIN",

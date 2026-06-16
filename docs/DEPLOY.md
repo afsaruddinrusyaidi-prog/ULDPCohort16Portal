@@ -14,10 +14,26 @@
 hPanel → Security → **SSL** → install the free Let's Encrypt certificate for `portal.yourdomain.com`. The included `.htaccess` already forces HTTPS once the cert is live.
 
 ## 4 · Connect the data (one-time)
-1. Build the **Points Claim Google Form** (House/Individual branch) linked to the points Sheet.
-2. In the Sheet, create tabs `House_Standings` and `MVP` exactly as described at the top of `apps-script/Code.gs`.
-3. Sheet → Extensions → Apps Script → paste `Code.gs` → **Deploy → Web app** (Execute as *Me*, access *Anyone*) → copy the `/exec` URL.
-4. Edit `assets/js/config.js` on the server: set `API_URL` (step 3), `FORM_EMBED_URL` (Form → Send → `<>` embed → copy the iframe `src`), and change `CAPTAIN_CODE` from the default.
+1. Build the **Points Claim Google Form** (House/Individual branch) linked to the points Sheet — its responses tab will be named `Submissions` (rename it to exactly that if needed).
+2. Sheet → Extensions → Apps Script → paste `apps-script/Code.gs`.
+3. **Set the staff password:** Project Settings (gear) → *Script Properties* → add `STAFF_KEY` = a strong passphrase. This is the login for the approval console.
+4. In the editor, pick `setup` in the function dropdown and press **▶ Run** once, granting permissions. This creates the `House_Standings`, `MVP`, `Catalog`, `ChangeLog` tabs and the workflow columns automatically.
+5. **Deploy → New deployment → Web app** (Execute as *Me*, access *Anyone*) → copy the `/exec` URL.
+6. Edit `assets/js/config.js` on the server:
+   - `API_URL` = the `/exec` URL
+   - `STAFF_CONSOLE_URL` = the same `/exec` URL **+ `?page=staff`**
+   - `FORM_EMBED_URL` = Form → Send → `<>` embed → copy the iframe `src`
+   - change `CAPTAIN_CODE` from the default
+7. Share the **staff URL + `STAFF_KEY`** with the Game Master only. (A discreet "Staff" link also appears in the site footer once `STAFF_CONSOLE_URL` is set.)
+
+### The staff approval console (what the Game Master gets)
+Open the staff URL, enter the key, and you get four tabs:
+- **Pending** — every unreviewed claim. Correct the House / category / points / member inline if needed, then **Approve** or **Reject** (with a reason). The leaderboard rebuilds instantly.
+- **+ Add points** — log an approved entry by hand (no Form needed) — useful for live, on-the-spot awards.
+- **Recent** — the last 40 reviewed decisions.
+- **Standings** — the live rebuilt totals per House.
+
+Approving/rejecting **never deletes** rows — it stamps Status/ReviewedBy/ReviewedAt/Reason on the `Submissions` row (full audit trail), then recomputes `House_Standings` + `MVP` from all approved rows.
 
 ## 5 · Gating the Captain page — what it is and isn't
 The access code on `submit.html` is a **soft gate**: it keeps casual participants out, but it lives in client-side JS, so treat it as a speed bump, not security. The real protection is on the **Google Form itself**: in Form settings, restrict to signed-in Google accounts (and optionally collect emails), so even someone past the gate can't submit anonymously. Rotate the captain code if it leaks; `robots.txt` already excludes the page from search.
