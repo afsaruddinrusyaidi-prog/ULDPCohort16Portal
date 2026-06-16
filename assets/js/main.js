@@ -1,16 +1,18 @@
-/* Nav state, hamburger, scroll-reveal */
+/* Nav state, hamburger, staff link, scroll-reveal, scroll progress */
 document.addEventListener("partials:ready", function () {
   // active nav link
   var page = document.body.dataset.page;
   document.querySelectorAll('.nav a[data-page]').forEach(function (a) {
     if (a.dataset.page === page) a.classList.add("active");
   });
+
   // discreet staff console link (only when configured)
   var staff = document.getElementById("staff-link");
   if (staff && window.ULDP && ULDP.STAFF_CONSOLE_URL) {
     staff.href = ULDP.STAFF_CONSOLE_URL;
     staff.style.display = "inline";
   }
+
   // hamburger
   var burger = document.querySelector(".nav .burger");
   var menu = document.getElementById("nav-menu");
@@ -23,17 +25,35 @@ document.addEventListener("partials:ready", function () {
       a.addEventListener("click", function () { menu.classList.remove("open"); });
     });
   }
+
+  // scroll progress bar
+  var bar = document.getElementById("scrollbar");
+  if (bar) {
+    var onScroll = function () {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  }
 });
 
-/* scroll reveal */
+/* scroll reveal — staggered */
 (function () {
-  if (!("IntersectionObserver" in window)) return;
+  if (!("IntersectionObserver" in window)) {
+    document.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
+    return;
+  }
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {
       if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
     });
-  }, { threshold: 0.12 });
+  }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
   document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+    document.querySelectorAll(".reveal").forEach(function (el, i) {
+      el.style.transitionDelay = ((i % 4) * 70) + "ms";
+      io.observe(el);
+    });
   });
 })();
