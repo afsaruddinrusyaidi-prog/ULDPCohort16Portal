@@ -23,8 +23,9 @@
   --yellow:#F5B30C; --pink:#E0247E; --teal:#0FA295;
   --maxw:1180px; --radius:16px; --radius-lg:28px;
   --shadow:0 10px 30px rgba(20,24,43,.08); --shadow-lg:0 26px 60px rgba(20,24,43,.13);
-  --display:'DIN Condensed','Oswald','Arial Narrow',sans-serif;
+  --display:'Axiata','Inter',-apple-system,Segoe UI,sans-serif;
   --body:'Axiata','Inter',-apple-system,Segoe UI,sans-serif;
+  --num:'DIN Condensed','Oswald','Arial Narrow',sans-serif;
 }
 
 /* ---------- Reset / base ---------- */
@@ -39,9 +40,9 @@ section{padding:92px 0;position:relative}
 
 /* ---------- Type ---------- */
 h1,h2,h3,h4{font-weight:700;line-height:1}
-.display,h1,h2{font-family:var(--display);text-transform:uppercase;letter-spacing:.004em;line-height:.92;color:var(--ink)}
-h1{font-size:clamp(3rem,9vw,7rem)}
-h2{font-size:clamp(2.2rem,5.5vw,4.4rem)}
+.display,h1,h2{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:-.012em;line-height:1.04;color:var(--ink)}
+h1{font-size:clamp(2.5rem,6.4vw,5rem)}
+h2{font-size:clamp(1.85rem,4.2vw,3.2rem)}
 h3{font-family:var(--body);font-weight:700;font-size:1.2rem;line-height:1.2;color:var(--ink)}
 h4{color:var(--ink)}
 p{color:var(--ink-soft)}
@@ -55,7 +56,7 @@ p{color:var(--ink-soft)}
 
 .mark{position:relative;white-space:nowrap}
 .mark::after{content:"";position:absolute;left:-.04em;right:-.04em;bottom:.06em;height:.34em;background:var(--yellow);z-index:-1;transform:skewX(-9deg)}
-.txt-grad{background:linear-gradient(100deg,var(--connectors),var(--visionaries) 60%,var(--purpose));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.txt-grad{background:linear-gradient(100deg,var(--connectors),var(--visionaries));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* ---------- Scroll progress + header ---------- */
 .scrollbar{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--connectors),var(--yellow),var(--pink));z-index:120}
@@ -390,3 +391,33 @@ footer.site .base a{color:#79809c}
 .band-deep .steprail h4{color:#fff}.band-deep .steprail p{color:#AEB6CE}
 .band-deep .count .unit{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12)}
 .band-deep .count .unit b{color:#fff}
+
+/* ============================================================
+   v3.1 — Axiata text, condensed numerals, background depth, mobile
+   ============================================================ */
+/* Big numerals keep the condensed face for a sporting/championship feel */
+.index,.stats .st b,.count .unit b,.lb-rank,.lb-pts,.mvp li b,
+.featrow .n,.htile .num,.steprail .dot,.hero .photo .badge b{font-family:var(--num)}
+
+/* Background depth — soft aurora blooms + faint dot grid (fixed behind content) */
+body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(48% 42% at 100% -5%,rgba(39,66,224,.11),transparent 60%),
+    radial-gradient(46% 40% at -5% 24%,rgba(15,162,149,.11),transparent 60%),
+    radial-gradient(56% 46% at 62% 108%,rgba(245,179,12,.09),transparent 60%)}
+body::after{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:.55;
+  background-image:radial-gradient(rgba(18,23,42,.05) 1px,transparent 1.5px);background-size:24px 24px}
+
+/* Keep big headings from running off small screens */
+h1,h2,h3,.sechead h2,.featrow .ft h3,.tl-item h3,.house-card h3,.htile h3{overflow-wrap:break-word}
+
+/* Step rail: 3-up only on wide screens; clean single-column stack on phones/tablets */
+@media(min-width:901px){.steprail.cols3{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){
+  .steprail{grid-template-columns:1fr!important;gap:20px}
+  .steprail::before{display:none}
+  .steprail .stp{display:grid;grid-template-columns:60px 1fr;gap:16px;text-align:left;align-items:start}
+  .steprail .dot{margin:0}
+  .steprail .stp>*{min-width:0}
+  .steprail h4,.steprail p,.steprail .date{overflow-wrap:anywhere}
+}
