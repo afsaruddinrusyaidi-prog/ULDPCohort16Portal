@@ -18,7 +18,9 @@ window.ULDP = {
   CAPTAIN_CODE: "C16-CAPTAIN",
 
   // Leaderboard switches on automatically from this date (before = placeholder)
-  LEADERBOARD_LIVE_FROM: "2026-06-26T00:00:00+08:00",   // House Reveal Day
+  // Set to a past date so the live board shows now. To re-hide it until
+  // House Reveal Day, change this back to "2026-06-26T00:00:00+08:00".
+  LEADERBOARD_LIVE_FROM: "2026-06-01T00:00:00+08:00",   // live now (was House Reveal Day)
 
   // Countdown targets
   DATES: {

@@ -98,6 +98,9 @@ function doGet(e) {
       .addMetaTag('viewport', 'width=device-width, initial-scale=1')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
   }
+  if (e && e.parameter && e.parameter.feed === 'log') {
+    return jsonOut_(logFeed_());
+  }
   return jsonOut_(publicPayload_());
 }
 
@@ -119,6 +122,44 @@ function publicPayload_() {
     mvp: readMvp_(ss)
   };
   cache.put(CACHE_KEY, JSON.stringify(payload), CACHE_SECONDS);
+  return payload;
+}
+
+// ----- Captain-facing claim log (?feed=log) ------------------
+// Returns reviewed + pending claims so Captains can see the status
+// of every submission. NO submitter emails are exposed. Cached 30s.
+function logFeed_() {
+  var cache = CacheService.getScriptCache();
+  var hit = cache.get('log-feed');
+  if (hit) return JSON.parse(hit);
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = getSubmissionsSheet_(ss);
+  var map = colMap_(sh);
+  var cat = catalog_(ss);
+  var claims = [];
+  var last = sh.getLastRow();
+  if (last >= 2) {
+    var values = sh.getRange(2, 1, last - 1, sh.getLastColumn()).getValues();
+    for (var i = 0; i < values.length; i++) {
+      var c = rowToClaim_(values[i], i + 2, map, cat);
+      if (!c.activity && !c.house && !c.points) continue;   // blank row
+      claims.push({
+        when: c.when,
+        house: c.house,
+        type: c.type,
+        member: c.member,
+        activity: c.activity,
+        category: c.category,
+        points: c.points,
+        status: c.status,
+        reason: c.reason
+      });
+    }
+  }
+  claims.reverse();                          // newest first
+  var payload = { updated: new Date().toISOString(), claims: claims.slice(0, 300) };
+  cache.put('log-feed', JSON.stringify(payload), 30);
   return payload;
 }
 

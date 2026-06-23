@@ -6,11 +6,12 @@ document.addEventListener("partials:ready", function () {
     if (a.dataset.page === page) a.classList.add("active");
   });
 
-  // discreet staff console link (only when configured)
-  var staff = document.getElementById("staff-link");
-  if (staff && window.ULDP && ULDP.STAFF_CONSOLE_URL) {
-    staff.href = ULDP.STAFF_CONSOLE_URL;
-    staff.style.display = "inline";
+  // staff console links (only when configured)
+  if (window.ULDP && ULDP.STAFF_CONSOLE_URL) {
+    ["staff-link", "staff-link-foot"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) { el.href = ULDP.STAFF_CONSOLE_URL; el.style.display = "inline"; }
+    });
   }
 
   // hamburger
