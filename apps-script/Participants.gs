@@ -71,6 +71,17 @@ var ENSURE_COLS = ['Salt','PassHash','Status'];
 
 function norm_(s){ return String(s||'').toLowerCase().replace(/[^a-z]/g,''); }
 
+// Works whether the script is BOUND to the sheet or STANDALONE.
+// Standalone: set Script Property SHEET_ID to the sheet's id
+// (the long string in its URL: /spreadsheets/d/<SHEET_ID>/edit).
+function getSS_(){
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (ss) return ss;
+  var id = PropertiesService.getScriptProperties().getProperty('SHEET_ID');
+  if (id) return SpreadsheetApp.openById(id);
+  throw new Error('No spreadsheet bound. Set Script Property SHEET_ID to your ULDP Participants sheet id.');
+}
+
 // ----- secret / hashing / tokens -----------------------------
 function getSecret_(){
   var p = PropertiesService.getScriptProperties();
@@ -120,7 +131,7 @@ function jsonOut_(obj){
 
 // ----- sheet helpers -----------------------------------------
 function sheet_(){
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getSS_();
   var sh = ss.getSheetByName(SHEET);
   if (!sh) sh = ss.insertSheet(SHEET);
   if (sh.getLastColumn() === 0) sh.getRange(1,1,1,1).setValues([['Email']]);
@@ -227,7 +238,7 @@ function seedPasswords(){
   if (last < 2) return 'No participants yet.';
   if (map.email < 0) return 'No Email column found.';
   var rows = sh.getRange(2,1,last-1,sh.getLastColumn()).getValues();
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getSS_();
   var cred = ss.getSheetByName('Credentials') || ss.insertSheet('Credentials');
   cred.clearContents();
   cred.appendRow(['Email','Password','(distribute, then DELETE this tab)']);
