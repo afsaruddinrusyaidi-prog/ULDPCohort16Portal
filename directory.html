@@ -10,7 +10,7 @@
 <link rel="icon" href="favicon.ico?v=2">
 <link rel="icon" type="image/png" sizes="48x48" href="favicon-32.png?v=2">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
-<link rel="stylesheet" href="assets/css/styles.css?v=23">
+<link rel="stylesheet" href="assets/css/styles.css?v=24">
 </head>
 <body data-page="directory">
 <header class="site"></header>
@@ -39,6 +39,11 @@
         <select id="f-uni"><option value="">All Universities</option></select>
         <select id="f-state"><option value="">All States</option></select>
         <select id="f-field"><option value="">All Fields</option></select>
+        <select id="f-sort" aria-label="Sort">
+          <option value="az">Name A–Z</option>
+          <option value="za">Name Z–A</option>
+          <option value="house">By House</option>
+        </select>
       </div>
     </div>
     <p class="dircount" id="dir-count"></p>
@@ -46,6 +51,9 @@
     <!-- GRID -->
     <div class="dirgrid" id="dir-grid"></div>
     <p class="lead" id="dir-empty" style="display:none;text-align:center;padding:50px 0">No participants match these filters.</p>
+    <div class="loadmore-wrap" id="loadmore-wrap" style="display:none">
+      <button class="btn btn-ghost" id="loadmore" type="button">Show more participants <span class="arr">↓</span></button>
+    </div>
 
   </div>
 </section>
@@ -122,14 +130,30 @@
       '</div></button>';
   }
 
-  function render(list){
+  var PAGE_SIZE = 24, shown = PAGE_SIZE, CURRENT = [];
+
+  function sortList(list){
+    var mode = document.getElementById("f-sort").value;
+    var order = { visionaries:0, builders:1, purpose:2, connectors:3 };
+    function nm(p){ return (p.pref||p.full||"").toLowerCase(); }
+    var arr = list.slice();
+    if (mode === "za") arr.sort(function(a,b){ return nm(a)<nm(b)?1:(nm(a)>nm(b)?-1:0); });
+    else if (mode === "house") arr.sort(function(a,b){ var d=(order[a.house]||0)-(order[b.house]||0); return d!==0?d:(nm(a)<nm(b)?-1:1); });
+    else arr.sort(function(a,b){ return nm(a)<nm(b)?-1:(nm(a)>nm(b)?1:0); });
+    return arr;
+  }
+
+  function paint(){
     var grid=document.getElementById("dir-grid");
-    document.getElementById("dir-count").textContent = list.length + (list.length===1?" participant":" participants");
-    document.getElementById("dir-empty").style.display = list.length ? "none" : "block";
-    grid.innerHTML = list.map(function(p){ return card(p, DATA.indexOf(p)); }).join("");
+    var slice=CURRENT.slice(0, shown);
+    grid.innerHTML = slice.map(function(p){ return card(p, DATA.indexOf(p)); }).join("");
     Array.prototype.forEach.call(grid.querySelectorAll(".dircard"), function(btn){
       btn.addEventListener("click", function(){ openModal(DATA[+btn.dataset.i]); });
     });
+    document.getElementById("dir-count").textContent = CURRENT.length
+      ? ("Showing " + slice.length + " of " + CURRENT.length + (CURRENT.length===1?" participant":" participants")) : "";
+    document.getElementById("dir-empty").style.display = CURRENT.length ? "none" : "block";
+    document.getElementById("loadmore-wrap").style.display = (CURRENT.length > shown) ? "flex" : "none";
   }
 
   function applyFilters(){
@@ -137,7 +161,7 @@
     var fh=document.getElementById("f-house").value, ft=document.getElementById("f-team").value,
         fu=document.getElementById("f-uni").value, fs=document.getElementById("f-state").value,
         ff=document.getElementById("f-field").value;
-    render(DATA.filter(function(p){
+    CURRENT = sortList(DATA.filter(function(p){
       if(fh && p.house!==fh) return false;
       if(ft && p.team!==ft) return false;
       if(fu && p.uni!==fu) return false;
@@ -149,6 +173,8 @@
       }
       return true;
     }));
+    shown = PAGE_SIZE;
+    paint();
   }
 
   function row(label, val){ if(!val) return ""; return '<div class="pf-row"><span class="pf-k">'+esc(label)+'</span><span class="pf-v">'+esc(val)+'</span></div>'; }
@@ -188,16 +214,17 @@
     var hs=document.getElementById("f-house"); hs.innerHTML='<option value="">All Houses</option>';
     Object.keys(HOUSES).forEach(function(h){ if(DATA.some(function(p){return p.house===h})){ var o=document.createElement("option"); o.value=h; o.textContent=HOUSES[h]; hs.appendChild(o);} });
     fillSelect("f-team", uniqTeams()); fillSelect("f-uni", uniq("uni")); fillSelect("f-state", uniq("state")); fillSelect("f-field", uniq("field"));
-    ["f-search","f-house","f-team","f-uni","f-state","f-field"].forEach(function(id){
+    ["f-search","f-house","f-team","f-uni","f-state","f-field","f-sort"].forEach(function(id){
       document.getElementById(id).addEventListener("input", applyFilters);
       document.getElementById(id).addEventListener("change", applyFilters);
     });
-    render(DATA);
+    document.getElementById("loadmore").addEventListener("click", function(){ shown += PAGE_SIZE; paint(); });
+    applyFilters();
   }
 
   function load(){
     if (ULDP.DIRECTORY_API_URL) {
-      var tok = sessionStorage.getItem("uldp-member-token") || "";
+      var tok = localStorage.getItem("uldp-member-token") || "";
       fetch(ULDP.DIRECTORY_API_URL + (ULDP.DIRECTORY_API_URL.indexOf("?")===-1?"?":"&") + "feed=directory&token=" + encodeURIComponent(tok), { cache:"no-store" })
         .then(function(r){ return r.json(); })
         .then(function(d){ boot((d && d.members && d.members.length) ? d.members : DEMO); })
