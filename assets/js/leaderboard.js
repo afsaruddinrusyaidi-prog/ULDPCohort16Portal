@@ -31,12 +31,76 @@
     }
   };
 
+  // brighter line colours (match the site's house CSS vars) for the graph
+  var CHART_COLORS = { visionaries: "#2742E0", builders: "#EE7A12", purpose: "#7C2FD6", connectors: "#0FA295" };
+
   function houseMeta(slug) {
     return ULDP.HOUSES.find(function (h) { return h.slug === slug; }) ||
            { name: slug, color: "#6B7080" };
   }
 
+  function showLive() {
+    var l = $("#lb-loading"), live = $("#lb-live");
+    if (l) l.style.display = "none";
+    if (live) live.style.display = "block";
+  }
+
+  function fmtDay(d) {
+    try { var p = String(d).split("-"); return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString("en-MY", { day: "numeric", month: "short" }); }
+    catch (e) { return d; }
+  }
+
+  function renderChart(hist) {
+    var wrap = $("#lb-graph-wrap"), host = $("#lb-chart");
+    if (!host || !wrap) return;
+    var days = (hist && hist.days) || [], series = (hist && hist.series) || {};
+    if (!days.length) { wrap.style.display = "none"; return; }
+    wrap.style.display = "block";
+
+    var order = ["visionaries", "builders", "purpose", "connectors"];
+    var W = 800, H = 360, pad = { l: 48, r: 18, t: 20, b: 46 }, n = days.length;
+    var maxY = 1;
+    order.forEach(function (h) { (series[h] || []).forEach(function (v) { if (v > maxY) maxY = v; }); });
+    var stepBase = Math.pow(10, Math.floor(Math.log10(maxY)));
+    maxY = Math.ceil(maxY / stepBase) * stepBase;
+    function x(i) { return pad.l + (n <= 1 ? (W - pad.l - pad.r) / 2 : (i / (n - 1)) * (W - pad.l - pad.r)); }
+    function y(v) { return H - pad.b - (v / maxY) * (H - pad.t - pad.b); }
+
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="House points progression">';
+    [0, 0.5, 1].forEach(function (f) {
+      var v = maxY * f, yy = y(v);
+      svg += '<line x1="' + pad.l + '" y1="' + yy + '" x2="' + (W - pad.r) + '" y2="' + yy + '" stroke="#E7E2D5" stroke-width="1"/>';
+      svg += '<text x="' + (pad.l - 8) + '" y="' + (yy + 4) + '" text-anchor="end" font-size="12" fill="#6E748A">' + Math.round(v) + '</text>';
+    });
+    svg += '<text x="' + pad.l + '" y="' + (H - pad.b + 22) + '" font-size="12" fill="#6E748A">' + fmtDay(days[0]) + '</text>';
+    if (n > 1) svg += '<text x="' + (W - pad.r) + '" y="' + (H - pad.b + 22) + '" text-anchor="end" font-size="12" fill="#6E748A">' + fmtDay(days[n - 1]) + '</text>';
+    order.forEach(function (h) {
+      var data = series[h] || [], col = CHART_COLORS[h] || "#888";
+      if (!data.length) return;
+      if (n > 1) {
+        var pts = data.map(function (v, i) { return x(i) + "," + y(v); }).join(" ");
+        svg += '<polyline points="' + pts + '" fill="none" stroke="' + col + '" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>';
+      }
+      data.forEach(function (v, i) { svg += '<circle cx="' + x(i) + '" cy="' + y(v) + '" r="' + (n > 1 ? 3.5 : 5) + '" fill="' + col + '"/>'; });
+    });
+    svg += '</svg>';
+    var legend = '<div class="lb-legend2">' + order.map(function (h) {
+      return '<span><i style="background:' + (CHART_COLORS[h]) + '"></i>' + houseMeta(h).name.replace("House of ", "") + '</span>';
+    }).join("") + '</div>';
+    host.innerHTML = svg + legend;
+  }
+
+  function loadHistory() {
+    if (!ULDP.API_URL) return;
+    var url = ULDP.API_URL + (ULDP.API_URL.indexOf("?") === -1 ? "?" : "&") + "feed=history";
+    fetch(url, { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (h) { if (h && h.days) renderChart(h); })   // old code returns no .days → chart stays hidden
+      .catch(function () {});
+  }
+
   function render(data) {
+    showLive();
     var board = $("#lb-rows");
     if (!board) return;
     var rows = data.standings.slice().sort(function (a, b) { return b.total - a.total; });
@@ -94,7 +158,8 @@
   }
 
   function showPlaceholder() {
-    var live = $("#lb-live"), ph = $("#lb-pre");
+    var l = $("#lb-loading"), live = $("#lb-live"), ph = $("#lb-pre");
+    if (l) l.style.display = "none";
     if (live) live.style.display = "none";
     if (ph) ph.style.display = "block";
   }
@@ -104,10 +169,10 @@
     if (!ULDP.API_URL) { render(DEMO); return; }      // review mode
     fetch(ULDP.API_URL, { cache: "no-store" })
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-      .then(render)
+      .then(function (d) { sessionStorage.setItem("lb-cache", JSON.stringify(d)); render(d); loadHistory(); })
       .catch(function () {
         var c = sessionStorage.getItem("lb-cache");
-        if (c) render(JSON.parse(c)); else render(DEMO);
+        if (c) { render(JSON.parse(c)); loadHistory(); } else render(DEMO);
       });
   }
 

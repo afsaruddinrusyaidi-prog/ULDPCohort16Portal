@@ -6,7 +6,7 @@
 <title>Leaderboard — ULDP 2026 Portal</title>
 <meta name="description" content="Live House standings for ULDP 2026 Cohort 16 — the Championship race, updated throughout the programme.">
 <link rel="icon" href="favicon.ico">
-<link rel="stylesheet" href="assets/css/styles.css?v=14">
+<link rel="stylesheet" href="assets/css/styles.css?v=15">
 </head>
 <body data-page="leaderboard">
 <header class="site"></header>
@@ -27,11 +27,28 @@
 <!-- LIVE BOARD -->
 <section>
   <div class="wrap">
-    <div id="lb-live">
+
+    <!-- LOADING STATE -->
+    <div id="lb-loading" class="lb-loading">
+      <div class="lb-loading-bar"><span></span></div>
+      <p>Tallying the latest standings…</p>
+    </div>
+
+    <div id="lb-live" style="display:none">
       <div class="lb-card reveal">
         <div id="lb-rows"></div>
         <div class="legend" id="lb-legend"></div>
         <div class="lb-updated" id="lb-updated"></div>
+      </div>
+
+      <!-- PROGRESSION GRAPH -->
+      <div id="lb-graph-wrap" class="reveal" style="margin-top:54px;display:none">
+        <div class="center">
+          <p class="eyebrow">The race over time</p>
+          <h2>Points progression</h2>
+          <p class="lead" style="margin:0 auto">Cumulative House points, day by day.</p>
+        </div>
+        <div class="lb-chart" id="lb-chart" style="margin-top:24px"></div>
       </div>
 
       <div style="margin-top:54px" class="reveal">

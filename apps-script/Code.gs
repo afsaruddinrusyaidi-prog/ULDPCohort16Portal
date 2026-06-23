@@ -65,6 +65,7 @@ var SHEET_STANDINGS   = 'House_Standings';
 var SHEET_MVP         = 'MVP';
 var SHEET_CATALOG     = 'Catalog';
 var SHEET_LOG         = 'ChangeLog';
+var SHEET_STAFF       = 'Staff';
 var CACHE_SECONDS     = 60;
 var CACHE_KEY         = 'public-payload';
 
@@ -86,9 +87,27 @@ function getStaffKey_() {
   var p = PropertiesService.getScriptProperties().getProperty('STAFF_KEY');
   return (p && p.trim()) ? p.trim() : DEFAULT_STAFF_KEY;
 }
-function checkKey_(key) {
-  return String(key || '').trim() === getStaffKey_();
+
+// Resolve an access key to a staff member's NAME (so the console can record
+// who approved/rejected). Reads the "Staff" tab (col A: Name, col B: Key).
+// Falls back to the single STAFF_KEY (named 'Staff') for backwards-compat.
+function staffName_(key) {
+  key = String(key || '').trim();
+  if (!key) return '';
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(SHEET_STAFF);
+  if (sh && sh.getLastRow() > 1) {
+    var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 2).getValues();
+    for (var i = 0; i < rows.length; i++) {
+      var nm = String(rows[i][0] || '').trim();
+      var k  = String(rows[i][1] || '').trim();
+      if (k && k === key) return nm || 'Staff';
+    }
+  }
+  if (key === getStaffKey_()) return 'Staff';   // legacy single key
+  return '';
 }
+function checkKey_(key) { return staffName_(key) !== ''; }
 
 // ----- Web entry points --------------------------------------
 function doGet(e) {
@@ -100,6 +119,9 @@ function doGet(e) {
   }
   if (e && e.parameter && e.parameter.feed === 'log') {
     return jsonOut_(logFeed_());
+  }
+  if (e && e.parameter && e.parameter.feed === 'history') {
+    return jsonOut_(historyFeed_());
   }
   return jsonOut_(publicPayload_());
 }
@@ -161,6 +183,53 @@ function logFeed_() {
   claims.reverse();                          // newest first
   var payload = { updated: new Date().toISOString(), claims: claims.slice(0, 300) };
   cache.put('log-feed', JSON.stringify(payload), 30);
+  return payload;
+}
+
+// ----- House points history (?feed=history) ------------------
+// Cumulative points per house per day, derived from the approval date
+// of each approved claim. Powers the progression graph. Cached 60s.
+function historyFeed_() {
+  var cache = CacheService.getScriptCache();
+  var hit = cache.get('history-feed');
+  if (hit) return JSON.parse(hit);
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = getSubmissionsSheet_(ss);
+  var map = colMap_(sh);
+  var cat = catalog_(ss);
+  var tz = ss.getSpreadsheetTimeZone() || 'Asia/Kuala_Lumpur';
+
+  var byDay = {};   // 'yyyy-MM-dd' -> { house: pointsThatDay }
+  var last = sh.getLastRow();
+  if (last >= 2) {
+    var values = sh.getRange(2, 1, last - 1, sh.getLastColumn()).getValues();
+    for (var i = 0; i < values.length; i++) {
+      var rowArr = values[i];
+      var c = rowToClaim_(rowArr, i + 2, map, cat);
+      if (c.status.toLowerCase() !== 'approved') continue;
+      if (!HOUSES[c.house]) continue;
+      var raw = (map.reviewed >= 0 && rowArr[map.reviewed]) ? rowArr[map.reviewed] : rowArr[0];
+      var day;
+      try { day = Utilities.formatDate(new Date(raw), tz, 'yyyy-MM-dd'); }
+      catch (err) { continue; }
+      byDay[day] = byDay[day] || {};
+      byDay[day][c.house] = (byDay[day][c.house] || 0) + (Number(c.points) || 0);
+    }
+  }
+
+  var days = Object.keys(byDay).sort();
+  var series = {}, running = {};
+  Object.keys(HOUSES).forEach(function (h) { series[h] = []; running[h] = 0; });
+  days.forEach(function (day) {
+    Object.keys(HOUSES).forEach(function (h) {
+      running[h] += (byDay[day][h] || 0);
+      series[h].push(running[h]);
+    });
+  });
+
+  var payload = { updated: new Date().toISOString(), days: days, series: series };
+  cache.put('history-feed', JSON.stringify(payload), 60);
   return payload;
 }
 
@@ -318,7 +387,8 @@ function rowToClaim_(row, idx, map, cat) {
     evidence: String(g('evidence') || '').trim(),
     submitter: String(g('submitter') || '').trim(),
     status: String(g('status') || 'Pending').trim() || 'Pending',
-    reason: String(g('reason') || '').trim()
+    reason: String(g('reason') || '').trim(),
+    reviewer: String(g('reviewer') || '').trim()
   };
 }
 
@@ -388,7 +458,7 @@ function recomputeAggregates_(ss) {
   });
   mv.getRange(1, 1, mrows.length, 3).setValues(mrows);
 
-  CacheService.getScriptCache().remove(CACHE_KEY);   // force fresh public payload
+  CacheService.getScriptCache().removeAll([CACHE_KEY, 'log-feed', 'history-feed']);  // refresh public feeds
   return totals;
 }
 
@@ -400,11 +470,13 @@ function log_(ss, action, detail) {
 
 // ----- Staff API (called from the console via google.script.run)
 function staffGetState(key) {
-  if (!checkKey_(key)) return { ok: false, error: 'Wrong access key.' };
+  var who = staffName_(key);
+  if (!who) return { ok: false, error: 'Wrong access key.' };
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var claims = readClaims_(ss);
   return {
     ok: true,
+    you: who,
     houses: HOUSES,
     categories: CATEGORIES,
     pending: claims.pending,
@@ -420,7 +492,8 @@ function staffGetState(key) {
  * claim at the moment of approval.
  */
 function staffDecide(key, payload) {
-  if (!checkKey_(key)) return { ok: false, error: 'Wrong access key.' };
+  var who = staffName_(key);
+  if (!who) return { ok: false, error: 'Wrong access key.' };
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sh = getSubmissionsSheet_(ss);
   var map = colMap_(sh);
@@ -439,19 +512,20 @@ function staffDecide(key, payload) {
     if (payload.member !== undefined) setCol('member', payload.member);
   }
   setCol('status', decision);
-  setCol('reviewer', Session.getActiveUser().getEmail() || 'staff');
+  setCol('reviewer', who);
   setCol('reviewed', new Date());
   if (payload.reason) setCol('reason', payload.reason);
 
   recomputeAggregates_(ss);
-  log_(ss, decision, 'row ' + row + ' · ' + (payload.activity || '') +
+  log_(ss, decision + ' · ' + who, 'row ' + row + ' · ' + (payload.activity || '') +
        ' · ' + (payload.points || '') + 'pts' + (payload.reason ? ' · ' + payload.reason : ''));
   return staffGetState(key);
 }
 
 /** Add an approved points entry by hand (no Form needed). */
 function staffAdd(key, payload) {
-  if (!checkKey_(key)) return { ok: false, error: 'Wrong access key.' };
+  var who = staffName_(key);
+  if (!who) return { ok: false, error: 'Wrong access key.' };
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sh = getSubmissionsSheet_(ss);
   var map = colMap_(sh);
@@ -466,14 +540,14 @@ function staffAdd(key, payload) {
   put('category', cleanCategory_(payload.category) || DEFAULT_CATEGORY);
   put('points', Number(payload.points) || 0);
   put('evidence', payload.evidence || '');
-  put('submitter', Session.getActiveUser().getEmail() || 'staff');
+  put('submitter', who);
   put('status', 'Approved');
-  put('reviewer', Session.getActiveUser().getEmail() || 'staff');
+  put('reviewer', who);
   put('reviewed', new Date());
   sh.appendRow(rowArr);
 
   recomputeAggregates_(ss);
-  log_(ss, 'Manual add', cleanHouse_(payload.house) + ' · ' +
+  log_(ss, 'Manual add · ' + who, cleanHouse_(payload.house) + ' · ' +
        (payload.points || 0) + 'pts · ' + (payload.activity || ''));
   return staffGetState(key);
 }
@@ -485,7 +559,8 @@ function staffAdd(key, payload) {
  * Only fields that are provided are changed.
  */
 function staffUpdate(key, payload) {
-  if (!checkKey_(key)) return { ok: false, error: 'Wrong access key.' };
+  var who = staffName_(key);
+  if (!who) return { ok: false, error: 'Wrong access key.' };
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sh = getSubmissionsSheet_(ss);
   var map = colMap_(sh);
@@ -505,11 +580,11 @@ function staffUpdate(key, payload) {
     s = s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();   // Approved/Rejected/Pending/Deleted
     setCol('status', s);
   }
-  setCol('reviewer', Session.getActiveUser().getEmail() || 'staff');
+  setCol('reviewer', who);
   setCol('reviewed', new Date());
 
   recomputeAggregates_(ss);
-  log_(ss, 'Edit', 'row ' + row + ' · ' + (payload.status || '(fields)') +
+  log_(ss, 'Edit · ' + who, 'row ' + row + ' · ' + (payload.status || '(fields)') +
        ' · ' + (payload.points !== undefined ? payload.points + 'pts' : '') +
        (payload.activity ? ' · ' + payload.activity : ''));
   return staffGetState(key);
@@ -521,7 +596,8 @@ function staffUpdate(key, payload) {
  * Pass hard:true to remove the row entirely (not recoverable).
  */
 function staffDelete(key, payload) {
-  if (!checkKey_(key)) return { ok: false, error: 'Wrong access key.' };
+  var who = staffName_(key);
+  if (!who) return { ok: false, error: 'Wrong access key.' };
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sh = getSubmissionsSheet_(ss);
   var map = colMap_(sh);
@@ -530,12 +606,12 @@ function staffDelete(key, payload) {
 
   if (payload.hard) {
     sh.deleteRow(row);
-    log_(ss, 'Hard delete', 'row ' + row);
+    log_(ss, 'Hard delete · ' + who, 'row ' + row);
   } else {
     if (map.status >= 0) sh.getRange(row, map.status + 1).setValue('Deleted');
-    if (map.reviewer >= 0) sh.getRange(row, map.reviewer + 1).setValue(Session.getActiveUser().getEmail() || 'staff');
+    if (map.reviewer >= 0) sh.getRange(row, map.reviewer + 1).setValue(who);
     if (map.reviewed >= 0) sh.getRange(row, map.reviewed + 1).setValue(new Date());
-    log_(ss, 'Delete', 'row ' + row + ' (recoverable)');
+    log_(ss, 'Delete · ' + who, 'row ' + row + ' (recoverable)');
   }
   recomputeAggregates_(ss);
   return staffGetState(key);
@@ -545,14 +621,27 @@ function staffDelete(key, payload) {
 function setup() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   getSubmissionsSheet_(ss);
-  [SHEET_STANDINGS, SHEET_MVP, SHEET_CATALOG, SHEET_LOG].forEach(function (n) {
+  [SHEET_STANDINGS, SHEET_MVP, SHEET_CATALOG, SHEET_LOG, SHEET_STAFF].forEach(function (n) {
     if (!ss.getSheetByName(n)) ss.insertSheet(n);
   });
   var cat = ss.getSheetByName(SHEET_CATALOG);
   if (cat.getLastRow() === 0) cat.appendRow(['Activity', 'Category', 'DefaultPoints', 'Cap']);
+
+  // Staff registry — each person gets their own key so the console can
+  // record who approved/rejected. CHANGE these example keys!
+  var st = ss.getSheetByName(SHEET_STAFF);
+  if (st.getLastRow() === 0) {
+    st.getRange(1, 1, 4, 2).setValues([
+      ['Name', 'Key'],
+      ['Zaim',   'zaim-CHANGE-ME'],
+      ['Afsar',  'afsar-CHANGE-ME'],
+      ['Zahira', 'zahira-CHANGE-ME']
+    ]);
+  }
+
   recomputeAggregates_(ss);
-  return 'Setup complete. Tabs ready. STAFF_KEY = ' +
-    (PropertiesService.getScriptProperties().getProperty('STAFF_KEY') ? '(set)' : 'DEFAULT — please set it!');
+  return 'Setup complete. Tabs ready (incl. Staff). Edit the Staff tab to set each ' +
+    'person\'s login key, then redeploy a new version.';
 }
 
 // ============================================================
@@ -599,7 +688,7 @@ function STAFF_HTML() {
 '@media(max-width:640px){.claim{grid-template-columns:1fr}.stand{grid-template-columns:repeat(2,1fr)}}' +
 '</style></head><body>' +
 
-'<div class="top"><div><h1>ULDP 2026 · Staff Console<small>POINTS APPROVAL · GAME MASTER</small></h1></div>' +
+'<div class="top"><div><h1>ULDP 2026 · Staff Console<small id="who">POINTS APPROVAL · GAME MASTER</small></h1></div>' +
 '<div><button class="btn btn-ghost" id="refresh" style="display:none">↻ Refresh</button> ' +
 '<button class="btn btn-ghost" id="logout" style="display:none">Lock</button></div></div>' +
 
@@ -624,6 +713,7 @@ function STAFF_HTML() {
 'function unlock(){var k=document.getElementById("key").value.trim();if(!k)return;' +
 'google.script.run.withSuccessHandler(function(r){if(!r.ok){document.getElementById("gateErr").textContent=r.error||"Wrong key";return}' +
 'KEY=k;STATE=r;document.getElementById("gateView").style.display="none";document.getElementById("appView").style.display="block";' +
+'if(r.you)document.getElementById("who").textContent="SIGNED IN AS "+String(r.you).toUpperCase();' +
 'document.getElementById("refresh").style.display="";document.getElementById("logout").style.display="";show("pending")})' +
 '.withFailureHandler(function(e){document.getElementById("gateErr").textContent=e.message}).staffGetState(k)}' +
 'document.getElementById("logout").onclick=function(){location.reload()};' +
@@ -658,7 +748,7 @@ function STAFF_HTML() {
 'p.innerHTML="<p class=\\"note\\" style=\\"margin:0 0 10px\\">Edit corrects a claim and rebuilds the board. Delete is recoverable — deleted claims show a Restore button.</p>"+STATE.recent.map(function(c,i){return recentCard(c,i)}).join("");' +
 'STATE.recent.forEach(function(c,i){wireRecent(c,i)})}' +
 'function recentCard(c,i){var del=String(c.status).toLowerCase()==="deleted";return "<div class=\\"card\\" id=\\"r"+i+"\\"><div class=\\"claim\\"><div>"+' +
-'"<h3>"+stIcon(c.status)+" "+esc(c.activity||"(no activity)")+"</h3>"+tag(c.house)+" <span class=\\"tag "+(c.type==="Individual"?"t-ind":"t-house")+"\\">"+c.type+"</span> <b>"+(c.points||0)+"pts</b>"+(c.member?" · "+esc(c.member):"")+(c.reason?" <span class=\\"note\\">("+esc(c.reason)+")</span>":"")+' +
+'"<h3>"+stIcon(c.status)+" "+esc(c.activity||"(no activity)")+"</h3>"+tag(c.house)+" <span class=\\"tag "+(c.type==="Individual"?"t-ind":"t-house")+"\\">"+c.type+"</span> <b>"+(c.points||0)+"pts</b>"+(c.member?" · "+esc(c.member):"")+(c.reviewer?" <span class=\\"note\\">by "+esc(c.reviewer)+"</span>":"")+(c.reason?" <span class=\\"note\\">("+esc(c.reason)+")</span>":"")+' +
 '"<div id=\\"e"+i+"\\" style=\\"display:none;margin-top:10px\\"><div class=\\"row2\\"><select data-f=\\"house\\">"+houseOpts(c.house)+"</select><select data-f=\\"category\\">"+catOpts(c.category)+"</select></div>"+' +
 '"<input data-f=\\"activity\\" value=\\""+esc(c.activity)+"\\" placeholder=\\"Activity\\"><div class=\\"row2\\"><input data-f=\\"points\\" type=\\"number\\" value=\\""+(c.points||0)+"\\" placeholder=\\"Points\\"><input data-f=\\"member\\" value=\\""+esc(c.member)+"\\" placeholder=\\"Member (for MVP)\\"></div></div>"+' +
 '"</div><div class=\\"actions\\">"+' +

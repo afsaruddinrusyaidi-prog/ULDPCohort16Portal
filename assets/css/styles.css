@@ -406,6 +406,18 @@ a.card{display:block}
 .st-no{background:rgba(224,36,126,.12);color:var(--pink)}
 .st-wait{background:rgba(245,179,12,.16);color:#9a7000}
 @media(max-width:560px){.logstats{grid-template-columns:repeat(2,1fr)}.logrow{flex-direction:column}.lr-side{flex-direction:row;align-items:center;text-align:left}}
+/* --- Leaderboard loading + progression chart --- */
+.lb-loading{text-align:center;padding:60px 20px}
+.lb-loading p{color:var(--muted);font-size:.95rem;margin-top:18px;letter-spacing:.02em}
+.lb-loading-bar{max-width:340px;height:8px;margin:0 auto;background:var(--line);border-radius:999px;overflow:hidden;position:relative}
+.lb-loading-bar span{position:absolute;left:0;top:0;height:100%;width:40%;border-radius:999px;background:linear-gradient(90deg,var(--connectors),var(--yellow),var(--pink));animation:lb-slide 1.15s ease-in-out infinite}
+@keyframes lb-slide{0%{left:-40%}100%{left:100%}}
+.lb-chart{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:0 8px 26px rgba(20,27,51,.06);padding:22px}
+.lb-chart svg{width:100%;height:auto;display:block}
+.lb-legend2{display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:center;margin-top:16px}
+.lb-legend2 span{display:inline-flex;align-items:center;gap:8px;font-size:.84rem;font-weight:600;color:var(--ink-soft)}
+.lb-legend2 i{width:14px;height:14px;border-radius:4px;display:inline-block}
+.hero-tight{padding-bottom:10px}
 
 /* ---------- Countdown ---------- */
 .count{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
