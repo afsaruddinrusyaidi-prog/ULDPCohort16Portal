@@ -14,6 +14,21 @@ document.addEventListener("partials:ready", function () {
     });
   }
 
+  // theme toggle (dark default)
+  var tog = document.getElementById("theme-tog");
+  if (tog) {
+    var setIcon = function () {
+      tog.textContent = (document.documentElement.getAttribute("data-theme") === "light") ? "☀️" : "🌙";
+    };
+    setIcon();
+    tog.addEventListener("click", function () {
+      var next = (document.documentElement.getAttribute("data-theme") === "light") ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", next);
+      try { localStorage.setItem("uldp-theme", next); } catch (e) {}
+      setIcon();
+    });
+  }
+
   // hamburger
   var burger = document.querySelector(".nav .burger");
   var menu = document.getElementById("nav-menu");
