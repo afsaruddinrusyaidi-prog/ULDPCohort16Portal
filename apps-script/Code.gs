@@ -144,6 +144,7 @@ function logFeed_() {
     for (var i = 0; i < values.length; i++) {
       var c = rowToClaim_(values[i], i + 2, map, cat);
       if (!c.activity && !c.house && !c.points) continue;   // blank row
+      if (c.status.toLowerCase() === 'deleted') continue;   // hide deleted from captains
       claims.push({
         when: c.when,
         house: c.house,
@@ -477,6 +478,69 @@ function staffAdd(key, payload) {
   return staffGetState(key);
 }
 
+/**
+ * Edit an existing claim (any row) and/or change its status.
+ * Used by the staff console to correct an already-reviewed entry or
+ * to RESTORE a deleted/rejected one (pass status:'Approved').
+ * Only fields that are provided are changed.
+ */
+function staffUpdate(key, payload) {
+  if (!checkKey_(key)) return { ok: false, error: 'Wrong access key.' };
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = getSubmissionsSheet_(ss);
+  var map = colMap_(sh);
+  var row = Number(payload.row);
+  if (!(row >= 2)) return { ok: false, error: 'Bad row.' };
+  function setCol(k, v) { if (map[k] >= 0) sh.getRange(row, map[k] + 1).setValue(v); }
+
+  if (payload.house !== undefined)    setCol('house', cleanHouse_(payload.house));
+  if (payload.category !== undefined) setCol('category', cleanCategory_(payload.category) || payload.category);
+  if (payload.points !== undefined && payload.points !== '') setCol('points', Number(payload.points));
+  if (payload.member !== undefined)   setCol('member', payload.member);
+  if (payload.activity !== undefined) setCol('activity', payload.activity);
+  if (payload.type !== undefined)     setCol('type', payload.type);
+  if (payload.reason !== undefined)   setCol('reason', payload.reason);
+  if (payload.status) {
+    var s = String(payload.status);
+    s = s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();   // Approved/Rejected/Pending/Deleted
+    setCol('status', s);
+  }
+  setCol('reviewer', Session.getActiveUser().getEmail() || 'staff');
+  setCol('reviewed', new Date());
+
+  recomputeAggregates_(ss);
+  log_(ss, 'Edit', 'row ' + row + ' · ' + (payload.status || '(fields)') +
+       ' · ' + (payload.points !== undefined ? payload.points + 'pts' : '') +
+       (payload.activity ? ' · ' + payload.activity : ''));
+  return staffGetState(key);
+}
+
+/**
+ * Soft-delete a claim: marks it 'Deleted' so it stops counting but
+ * can be RESTORED later via staffUpdate(status:'Approved').
+ * Pass hard:true to remove the row entirely (not recoverable).
+ */
+function staffDelete(key, payload) {
+  if (!checkKey_(key)) return { ok: false, error: 'Wrong access key.' };
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = getSubmissionsSheet_(ss);
+  var map = colMap_(sh);
+  var row = Number(payload.row);
+  if (!(row >= 2)) return { ok: false, error: 'Bad row.' };
+
+  if (payload.hard) {
+    sh.deleteRow(row);
+    log_(ss, 'Hard delete', 'row ' + row);
+  } else {
+    if (map.status >= 0) sh.getRange(row, map.status + 1).setValue('Deleted');
+    if (map.reviewer >= 0) sh.getRange(row, map.reviewer + 1).setValue(Session.getActiveUser().getEmail() || 'staff');
+    if (map.reviewed >= 0) sh.getRange(row, map.reviewed + 1).setValue(new Date());
+    log_(ss, 'Delete', 'row ' + row + ' (recoverable)');
+  }
+  recomputeAggregates_(ss);
+  return staffGetState(key);
+}
+
 // ----- One-time setup (run from the editor) ------------------
 function setup() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -511,6 +575,8 @@ function STAFF_HTML() {
 '.btn{display:inline-block;border:0;border-radius:999px;padding:10px 20px;font-weight:700;cursor:pointer;font-size:.88rem}' +
 '.btn-y{background:var(--yellow);color:var(--navy)}.btn-g{background:var(--teal);color:#fff}.btn-r{background:#fff;color:var(--pink);border:2px solid var(--pink)}.btn-n{background:var(--navy);color:#fff}.btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4)}' +
 '.btn:disabled{opacity:.5;cursor:default}' +
+'.btn-e{background:#fff;color:var(--navy);border:2px solid var(--line)}' +
+'.pwwrap{position:relative}.pwtog{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:0;cursor:pointer;font-size:1.05rem;width:auto;margin:0;padding:4px}' +
 '.err{color:var(--pink);font-size:.82rem;min-height:1.1em}' +
 '.tabs{display:flex;gap:8px;margin:0 0 16px;flex-wrap:wrap}' +
 '.tabs button{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-weight:600;cursor:pointer;font-size:.86rem}' +
@@ -538,7 +604,7 @@ function STAFF_HTML() {
 '<button class="btn btn-ghost" id="logout" style="display:none">Lock</button></div></div>' +
 
 '<div id="gateView" class="gate"><h2>Staff access</h2><p>Enter the staff access key shared by the programme team.</p>' +
-'<input type="password" id="key" placeholder="Access key" autocomplete="off">' +
+'<div class="pwwrap"><input type="password" id="key" placeholder="Access key" autocomplete="off"><button type="button" class="pwtog" id="keytog" aria-label="Show or hide key">👁</button></div>' +
 '<div class="err" id="gateErr"></div><button class="btn btn-n" id="enter" style="width:100%">Unlock console</button></div>' +
 
 '<div id="appView" class="wrap" style="display:none">' +
@@ -553,6 +619,7 @@ function STAFF_HTML() {
 'function run(fn,arg,cb){google.script.run.withSuccessHandler(function(r){cb&&cb(r)}).withFailureHandler(function(e){alert("Error: "+e.message)})[fn](KEY,arg)}' +
 'function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;"}[c]})}' +
 'document.getElementById("enter").onclick=unlock;' +
+'document.getElementById("keytog").onclick=function(){var i=document.getElementById("key");var sh=i.type==="password";i.type=sh?"text":"password";this.textContent=sh?"🙈":"👁"};' +
 'document.getElementById("key").addEventListener("keydown",function(e){if(e.key==="Enter")unlock()});' +
 'function unlock(){var k=document.getElementById("key").value.trim();if(!k)return;' +
 'google.script.run.withSuccessHandler(function(r){if(!r.ok){document.getElementById("gateErr").textContent=r.error||"Wrong key";return}' +
@@ -586,9 +653,23 @@ function STAFF_HTML() {
 'var payload={row:c.row,decision:btn.dataset.a,house:val("house"),category:val("category"),points:val("points"),member:val("member"),reason:val("reason"),activity:c.activity};' +
 'run("staffDecide",payload,function(r){STATE=r;show("pending")})}})}' +
 
+'function stIcon(s){s=String(s||"").toLowerCase();return s==="approved"?"✅":(s==="rejected"?"❌":(s==="deleted"?"🗑️":"•"))}' +
 'function renderRecent(p){if(!STATE.recent.length){p.innerHTML="<div class=\\"card muted\\">No reviewed claims yet.</div>";return}' +
-'p.innerHTML="<div class=\\"card\\">"+STATE.recent.map(function(c){return "<div style=\\"padding:8px 0;border-bottom:1px solid #eee;font-size:.9rem\\">"+' +
-'(c.status==="Approved"?"✅":"❌")+" "+tag(c.house)+" <b>"+esc(c.activity)+"</b> · "+c.points+"pts "+(c.member?"· "+esc(c.member):"")+(c.reason?" <span class=\\"note\\">("+esc(c.reason)+")</span>":"")+"</div>"}).join("")+"</div>"}' +
+'p.innerHTML="<p class=\\"note\\" style=\\"margin:0 0 10px\\">Edit corrects a claim and rebuilds the board. Delete is recoverable — deleted claims show a Restore button.</p>"+STATE.recent.map(function(c,i){return recentCard(c,i)}).join("");' +
+'STATE.recent.forEach(function(c,i){wireRecent(c,i)})}' +
+'function recentCard(c,i){var del=String(c.status).toLowerCase()==="deleted";return "<div class=\\"card\\" id=\\"r"+i+"\\"><div class=\\"claim\\"><div>"+' +
+'"<h3>"+stIcon(c.status)+" "+esc(c.activity||"(no activity)")+"</h3>"+tag(c.house)+" <span class=\\"tag "+(c.type==="Individual"?"t-ind":"t-house")+"\\">"+c.type+"</span> <b>"+(c.points||0)+"pts</b>"+(c.member?" · "+esc(c.member):"")+(c.reason?" <span class=\\"note\\">("+esc(c.reason)+")</span>":"")+' +
+'"<div id=\\"e"+i+"\\" style=\\"display:none;margin-top:10px\\"><div class=\\"row2\\"><select data-f=\\"house\\">"+houseOpts(c.house)+"</select><select data-f=\\"category\\">"+catOpts(c.category)+"</select></div>"+' +
+'"<input data-f=\\"activity\\" value=\\""+esc(c.activity)+"\\" placeholder=\\"Activity\\"><div class=\\"row2\\"><input data-f=\\"points\\" type=\\"number\\" value=\\""+(c.points||0)+"\\" placeholder=\\"Points\\"><input data-f=\\"member\\" value=\\""+esc(c.member)+"\\" placeholder=\\"Member (for MVP)\\"></div></div>"+' +
+'"</div><div class=\\"actions\\">"+' +
+'(del?"<button class=\\"btn btn-g\\" data-a=\\"restore\\">♻ Restore</button>":"<button class=\\"btn btn-e\\" data-a=\\"editToggle\\">✎ Edit</button><button class=\\"btn btn-g\\" data-a=\\"save\\" style=\\"display:none\\">Save</button>")+' +
+'"<button class=\\"btn btn-r\\" data-a=\\"delete\\">🗑 Delete</button></div></div></div>"}' +
+'function wireRecent(c,i){var el=document.getElementById("r"+i);function val(f){var n=el.querySelector("[data-f=\\""+f+"\\"]");return n?n.value:""}function act(a){return el.querySelector("[data-a=\\""+a+"\\"]")}' +
+'var et=act("editToggle"),sv=act("save"),ed=document.getElementById("e"+i);' +
+'if(et)et.onclick=function(){var open=ed.style.display!=="none";ed.style.display=open?"none":"block";sv.style.display=open?"none":"inline-block";et.textContent=open?"✎ Edit":"Cancel"};' +
+'if(sv)sv.onclick=function(){sv.disabled=true;run("staffUpdate",{row:c.row,house:val("house"),category:val("category"),points:val("points"),member:val("member"),activity:val("activity")},function(r){STATE=r;show("recent")})};' +
+'var rs=act("restore");if(rs)rs.onclick=function(){rs.disabled=true;run("staffUpdate",{row:c.row,status:"Approved"},function(r){STATE=r;show("recent")})};' +
+'var dl=act("delete");if(dl)dl.onclick=function(){if(!confirm("Delete this claim? You can restore it later."))return;dl.disabled=true;run("staffDelete",{row:c.row},function(r){STATE=r;show("recent")})}}' +
 
 'function renderBoard(p){var s=STATE.standings,order=["visionaries","builders","purpose","connectors"];' +
 'var map={};s.forEach(function(x){map[x.house]=x});' +

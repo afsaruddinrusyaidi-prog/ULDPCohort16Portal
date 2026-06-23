@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Captain Portal — ULDP 2026 Portal</title>
+<meta name="description" content="House Captain portal for ULDP 2026 — submit points claims and track their review status.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="assets/css/styles.css?v=14">
+</head>
+<body data-page="captain">
+<header class="site"></header>
+
+<div class="hero">
+  <span class="geo tri-teal" style="left:4%;top:24%"></span>
+  <span class="geo dia-yellow" style="right:6%;bottom:18%"></span>
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">House Captains only</p>
+      <h1>Captain Portal</h1>
+      <p class="sub">Submit points claims and follow every one through review — all in one place.</p>
+    </div>
+    <div class="photo"><img src="assets/img/photos/hero-submit.jpg" alt="CEO Challenge champions celebrating"></div>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+
+    <!-- GATE -->
+    <div class="gate" id="gate">
+      <div class="lock">🔒</div>
+      <h3>Captain access</h3>
+      <p style="font-size:.92rem;margin-top:8px">Enter the Captain access code from your briefing. For security, you'll sign in each time you open the portal.</p>
+      <div class="pwwrap">
+        <input type="password" id="gate-code" placeholder="Access code" autocomplete="off">
+        <button type="button" class="pwtog" id="gate-tog" aria-label="Show or hide code">👁</button>
+      </div>
+      <div class="err" id="gate-err"></div>
+      <button class="btn btn-primary" id="gate-btn">Unlock portal <span class="arr">→</span></button>
+    </div>
+
+    <!-- PORTAL -->
+    <div id="portal" style="display:none">
+
+      <div class="ptabs">
+        <button class="ptab on" data-tab="submit">＋ Submit a claim</button>
+        <button class="ptab" data-tab="log">📋 Claim log</button>
+        <button class="ptab ptab-lock" id="lock-btn">🔒 Lock</button>
+      </div>
+
+      <!-- SUBMIT TAB -->
+      <div id="tab-submit" class="ptab-panel">
+        <div class="pipe" style="margin-top:6px">
+          <div class="node"><b>1 · You submit</b><small>the claim form, with a photo or text evidence</small></div>
+          <div class="arr">→</div>
+          <div class="node"><b>2 · Game Master reviews</b><small>every claim is verified before it counts</small></div>
+          <div class="arr">→</div>
+          <div class="node"><b>3 · The board moves</b><small>approved points appear on the live leaderboard</small></div>
+        </div>
+        <div class="note">
+          <b>The evidence rule:</b> every claim must carry evidence — a photo, a screenshot, or a clear text account. No evidence, no points. For <b>individual (MVP)</b> claims, name the member the points belong to; you submit on their behalf, but the points are theirs.
+        </div>
+        <div class="form-open" id="form-host"></div>
+      </div>
+
+      <!-- LOG TAB -->
+      <div id="tab-log" class="ptab-panel" style="display:none">
+        <div class="logbar">
+          <div class="logbar-l">
+            <button class="btn btn-ghost" id="log-refresh" type="button">↻ Refresh</button>
+          </div>
+          <div class="logbar-r">
+            <select id="f-house"><option value="">All Houses</option></select>
+            <select id="f-status">
+              <option value="">All statuses</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="pending">Pending</option>
+            </select>
+          </div>
+        </div>
+        <div class="logstats" id="log-stats"></div>
+        <div id="log-host"><p class="lead" style="text-align:center;padding:40px 0">Loading the claim log…</p></div>
+        <p class="lead" id="log-updated" style="text-align:center;font-size:.82rem;opacity:.7;margin-top:18px"></p>
+        <div class="note" style="margin-top:24px">
+          <b>Heads up:</b> Pending claims are awaiting the Game Master — they don't count toward the board until approved. Rejected claims show the reason given.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer class="site"></footer>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/include.js"></script>
+<script src="assets/js/main.js"></script>
+<script>
+(function () {
+  var DATA = null;
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+  function houseName(slug) {
+    var h = (ULDP.HOUSES || []).find(function (x) { return x.slug === slug; });
+    return h ? h.name.replace("House of ", "") : (slug || "—");
+  }
+  function fmtDate(iso) {
+    if (!iso) return "";
+    try { return new Date(iso).toLocaleString("en-MY", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); }
+    catch (e) { return ""; }
+  }
+  function badge(status) {
+    var s = String(status || "").toLowerCase();
+    var cls = s === "approved" ? "ok" : (s === "rejected" ? "no" : "wait");
+    var label = s === "approved" ? "Approved" : (s === "rejected" ? "Rejected" : "Pending");
+    return '<span class="st st-' + cls + '">' + label + '</span>';
+  }
+
+  /* ---- submit tab ---- */
+  function renderSubmit() {
+    var host = document.getElementById("form-host");
+    var formUrl = ULDP.FORM_URL || (ULDP.FORM_EMBED_URL || "").replace("?embedded=true", "");
+    if (formUrl) {
+      host.innerHTML =
+        '<div class="open-card">' +
+          '<h3>Submit a points claim</h3>' +
+          '<p>The claim form opens in a new tab. You\'ll sign in with your Google account so we can attach your name and any photo evidence you upload.</p>' +
+          '<a class="btn btn-primary" href="' + formUrl + '" target="_blank" rel="noopener">Open the points claim form <span class="arr">→</span></a>' +
+          '<p class="open-note">After submitting, switch to the <b>Claim log</b> tab to watch it move through review.</p>' +
+        '</div>';
+    } else {
+      host.innerHTML = '<div class="note"><b>Form not connected yet.</b> Set <code>FORM_EMBED_URL</code> in assets/js/config.js.</div>';
+    }
+  }
+
+  /* ---- log tab ---- */
+  function fillHouseFilter() {
+    var sel = document.getElementById("f-house");
+    if (sel.dataset.filled) return;
+    (ULDP.HOUSES || []).forEach(function (h) {
+      var o = document.createElement("option");
+      o.value = h.slug; o.textContent = h.name.replace("House of ", "");
+      sel.appendChild(o);
+    });
+    sel.dataset.filled = "1";
+  }
+  function renderLog() {
+    var host = document.getElementById("log-host");
+    if (!DATA) { host.innerHTML = '<p class="lead" style="text-align:center;padding:40px 0">No data yet.</p>'; return; }
+    if (!DATA.claims) {
+      host.innerHTML = '<div class="note"><b>The points engine needs a redeploy.</b> The live Apps Script is still running the old code, so the claim log can\'t load yet. Once it\'s redeployed (Deploy → Manage deployments → New version), this fills in automatically.</div>';
+      return;
+    }
+    var fh = document.getElementById("f-house").value;
+    var fs = document.getElementById("f-status").value.toLowerCase();
+    var rows = DATA.claims.filter(function (c) {
+      if (fh && c.house !== fh) return false;
+      if (fs && String(c.status).toLowerCase() !== fs) return false;
+      return true;
+    });
+
+    var all = DATA.claims;
+    var n = function (st) { return all.filter(function (c) { return String(c.status).toLowerCase() === st; }).length; };
+    document.getElementById("log-stats").innerHTML =
+      '<div class="ls"><b>' + all.length + '</b><small>Total</small></div>' +
+      '<div class="ls ok"><b>' + n("approved") + '</b><small>Approved</small></div>' +
+      '<div class="ls no"><b>' + n("rejected") + '</b><small>Rejected</small></div>' +
+      '<div class="ls wait"><b>' + n("pending") + '</b><small>Pending</small></div>';
+
+    if (!rows.length) {
+      host.innerHTML = '<div class="lb-card" style="text-align:center;padding:40px"><p class="lead">No claims match this filter yet.</p></div>';
+      return;
+    }
+    host.innerHTML = '<div class="logtable">' + rows.map(function (c) {
+      return '<div class="logrow h-' + esc(c.house) + '">' +
+        '<div class="lr-main">' +
+          '<div class="lr-top"><span class="lr-house">' + esc(houseName(c.house)) + '</span>' +
+          '<span class="lr-cat">' + esc(c.category) + '</span>' +
+          (c.type === "Individual" ? '<span class="lr-ind">MVP · ' + esc(c.member || "—") + '</span>' : '') + '</div>' +
+          '<div class="lr-act">' + esc(c.activity || "(no description)") + '</div>' +
+          (c.reason ? '<div class="lr-reason">Note: ' + esc(c.reason) + '</div>' : '') +
+          '<div class="lr-when">' + esc(fmtDate(c.when)) + '</div>' +
+        '</div>' +
+        '<div class="lr-side">' + badge(c.status) + '<div class="lr-pts">' + (Number(c.points) || 0) + '<small>pts</small></div></div>' +
+      '</div>';
+    }).join("") + '</div>';
+  }
+  function loadLog() {
+    var host = document.getElementById("log-host");
+    if (!ULDP.API_URL) { host.innerHTML = '<div class="note"><b>Log not connected.</b> Set <code>API_URL</code> in config.js.</div>'; return; }
+    var url = ULDP.API_URL + (ULDP.API_URL.indexOf("?") === -1 ? "?" : "&") + "feed=log";
+    host.innerHTML = '<p class="lead" style="text-align:center;padding:40px 0">Loading the claim log…</p>';
+    fetch(url, { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (d) {
+        DATA = d;
+        document.getElementById("log-updated").textContent = d.updated ? ("Last updated " + fmtDate(d.updated)) : "";
+        renderLog();
+      })
+      .catch(function () {
+        host.innerHTML = '<div class="note"><b>Couldn\'t reach the points engine.</b> Check your connection, or it may need a redeploy. Try Refresh in a moment.</div>';
+      });
+  }
+
+  /* ---- tabs ---- */
+  function showTab(name) {
+    document.querySelectorAll(".ptab[data-tab]").forEach(function (b) {
+      b.classList.toggle("on", b.dataset.tab === name);
+    });
+    document.getElementById("tab-submit").style.display = name === "submit" ? "block" : "none";
+    document.getElementById("tab-log").style.display = name === "log" ? "block" : "none";
+    if (name === "log") loadLog();
+  }
+
+  function unlock() {
+    document.getElementById("gate").style.display = "none";
+    document.getElementById("portal").style.display = "block";
+    renderSubmit();
+    fillHouseFilter();
+    document.getElementById("f-house").addEventListener("change", renderLog);
+    document.getElementById("f-status").addEventListener("change", renderLog);
+    document.getElementById("log-refresh").addEventListener("click", loadLog);
+    document.querySelectorAll(".ptab[data-tab]").forEach(function (b) {
+      b.addEventListener("click", function () { showTab(b.dataset.tab); });
+    });
+    document.getElementById("lock-btn").addEventListener("click", function () { location.reload(); });
+    showTab("submit");
+  }
+
+  // password show/hide
+  document.getElementById("gate-tog").addEventListener("click", function () {
+    var i = document.getElementById("gate-code");
+    var sh = i.type === "password";
+    i.type = sh ? "text" : "password";
+    this.textContent = sh ? "🙈" : "👁";
+  });
+
+  // NOTE: no sessionStorage — Captains re-enter the code each time (per spec).
+  document.getElementById("gate-btn").addEventListener("click", function () {
+    var v = document.getElementById("gate-code").value.trim();
+    if (v === ULDP.CAPTAIN_CODE) { unlock(); }
+    else { document.getElementById("gate-err").textContent = "That code isn't right — check your Captain briefing."; }
+  });
+  document.getElementById("gate-code").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") document.getElementById("gate-btn").click();
+  });
+})();
+</script>
+</body>
+</html>

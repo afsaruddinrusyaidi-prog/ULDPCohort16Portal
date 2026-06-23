@@ -79,9 +79,9 @@ header.site.scrolled .nav .brand img{height:30px}
 .nav ul a{position:relative;display:block;padding:9px 16px;border-radius:999px;color:#c2c8de;font-size:.84rem;font-weight:600;letter-spacing:.02em;transition:color .25s,background .25s}
 .nav ul a:hover{color:#fff;background:rgba(255,255,255,.07)}
 .nav ul a.active{color:#0b1020;background:linear-gradient(135deg,#FFD75A,var(--yellow));box-shadow:0 6px 18px rgba(245,179,12,.4)}
-.nav ul a[data-page="submit"]{color:#fff;background:linear-gradient(135deg,var(--connectors),#0c8378);box-shadow:0 6px 18px rgba(15,162,149,.4);margin-left:6px}
-.nav ul a[data-page="submit"]:hover{color:#fff;background:linear-gradient(135deg,#13bcab,var(--connectors));box-shadow:0 10px 24px rgba(15,162,149,.55)}
-.nav ul a[data-page="submit"].active{color:#fff;background:linear-gradient(135deg,#13bcab,var(--connectors))}
+.nav ul a[data-page="captain"]{color:#fff;background:linear-gradient(135deg,var(--connectors),#0c8378);box-shadow:0 6px 18px rgba(15,162,149,.4);margin-left:6px}
+.nav ul a[data-page="captain"]:hover{color:#fff;background:linear-gradient(135deg,#13bcab,var(--connectors));box-shadow:0 10px 24px rgba(15,162,149,.55)}
+.nav ul a[data-page="captain"].active{color:#fff;background:linear-gradient(135deg,#13bcab,var(--connectors))}
 .nav .burger{display:none;background:none;border:0;cursor:pointer;padding:8px;z-index:2}
 .nav .burger span{display:block;width:25px;height:2px;background:#fff;margin:6px 0;border-radius:2px;transition:.25s}
 .nav .burger[aria-expanded="true"] span:nth-child(1){transform:translateY(8px) rotate(45deg)}
@@ -93,7 +93,7 @@ header.site.scrolled .nav .brand img{height:30px}
   .nav ul.open{transform:translateY(0);opacity:1}
   .nav ul li{display:block}
   .nav ul a{padding:14px 16px;border-radius:14px;font-size:1rem}
-  .nav ul a[data-page="submit"]{margin-left:0;margin-top:4px}
+  .nav ul a[data-page="captain"]{margin-left:0;margin-top:4px}
 }
 
 /* ---------- Buttons ---------- */
@@ -370,6 +370,14 @@ a.card{display:block}
 .open-card p{color:var(--muted);font-size:.96rem;max-width:440px;margin:0 auto}
 .open-card .btn{margin:24px 0 6px}
 .open-card .open-note{font-size:.82rem;opacity:.8}
+/* --- Captain portal tabs --- */
+.pwwrap{position:relative}
+.pwwrap input{padding-right:46px}
+.pwtog{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:0;cursor:pointer;font-size:1.15rem;line-height:1;padding:6px}
+.ptabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 28px;border-bottom:2px solid var(--line);padding-bottom:14px}
+.ptab{background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:10px 20px;font-family:var(--body);font-weight:700;font-size:.9rem;color:var(--ink);cursor:pointer}
+.ptab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.ptab-lock{margin-left:auto;color:var(--muted)}
 /* --- Captain claim log --- */
 .logbar{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;margin:8px 0 24px}
 .logbar-l,.logbar-r{display:flex;gap:10px;flex-wrap:wrap;align-items:center}

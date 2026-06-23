@@ -3,110 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Captain Login — ULDP 2026 Portal</title>
-<meta name="description" content="House Captain submission area for ULDP 2026.">
 <meta name="robots" content="noindex,nofollow">
-<link rel="icon" href="favicon.ico">
-<link rel="stylesheet" href="assets/css/styles.css?v=13">
+<title>Captain Portal — ULDP 2026</title>
+<meta http-equiv="refresh" content="0; url=captain.html">
+<link rel="canonical" href="captain.html">
+<script>location.replace("captain.html" + location.hash);</script>
 </head>
-<body data-page="submit">
-<header class="site"></header>
-
-<div class="hero">
-  <span class="geo tri-teal" style="left:4%;top:24%"></span>
-  <span class="geo dia-yellow" style="right:6%;bottom:18%"></span>
-  <div class="wrap">
-    <div>
-      <p class="eyebrow">House Captains only</p>
-      <h1>Points Submission</h1>
-      <p class="sub">The official channel for Captains to claim points — for the House, and for individual members.</p>
-    </div>
-    <div class="photo"><img src="assets/img/photos/hero-submit.jpg" alt="CEO Challenge champions celebrating"></div>
-  </div>
-</div>
-
-<section>
-  <div class="wrap">
-
-    <!-- GATE -->
-    <div class="gate" id="gate">
-      <div class="lock">🔒</div>
-      <h3>Captain access</h3>
-      <p style="font-size:.92rem;margin-top:8px">Enter the Captain access code shared in your briefing. If you've misplaced it, message the programme team.</p>
-      <input type="password" id="gate-code" placeholder="Access code" autocomplete="off">
-      <div class="err" id="gate-err"></div>
-      <button class="btn btn-primary" id="gate-btn">Unlock <span class="arr">→</span></button>
-    </div>
-
-    <!-- GATED CONTENT -->
-    <div id="gated" style="display:none">
-
-      <div class="center reveal in">
-        <p class="eyebrow">How your claim travels</p>
-        <h2>Three steps to the board</h2>
-      </div>
-      <div class="pipe" style="margin-top:28px">
-        <div class="node"><b>1 · You submit</b><small>the claim form below, with photo or text evidence</small></div>
-        <div class="arr">→</div>
-        <div class="node"><b>2 · Game Master reviews</b><small>every claim is verified nightly before it counts</small></div>
-        <div class="arr">→</div>
-        <div class="node"><b>3 · The board moves</b><small>approved points appear on the live leaderboard</small></div>
-      </div>
-
-      <div class="note">
-        <b>The evidence rule:</b> every point claim must carry evidence — a photo, a screenshot, or a clear text account. No evidence, no points. For <b>individual (MVP)</b> claims, name the member the points belong to; you submit on their behalf, but the points are theirs.
-      </div>
-
-      <div class="form-open" id="form-host">
-        <!-- Open-form button is injected here from config.js -->
-      </div>
-
-      <p style="text-align:center;margin-top:28px">
-        <a class="btn btn-ghost" href="claim-log.html">View the points claim log <span class="arr">→</span></a>
-      </p>
-
-    </div>
-  </div>
-</section>
-
-<footer class="site"></footer>
-<script src="assets/js/config.js"></script>
-<script src="assets/js/include.js"></script>
-<script src="assets/js/main.js"></script>
-<script>
-(function () {
-  var KEY = "uldp-captain-ok";
-  function unlock() {
-    document.getElementById("gate").style.display = "none";
-    document.getElementById("gated").style.display = "block";
-    var host = document.getElementById("form-host");
-    var formUrl = ULDP.FORM_URL || (ULDP.FORM_EMBED_URL || "").replace("?embedded=true", "");
-    if (formUrl) {
-      host.innerHTML =
-        '<div class="open-card">' +
-          '<h3>Submit a points claim</h3>' +
-          '<p>The claim form opens in a new tab. You\'ll sign in with your Google account so we can attach your name and any photo evidence you upload.</p>' +
-          '<a class="btn btn-primary" href="' + formUrl + '" target="_blank" rel="noopener">Open the points claim form <span class="arr">→</span></a>' +
-          '<p class="open-note">Uploading a photo? You must be signed in to Google — that\'s why this opens in its own tab rather than here.</p>' +
-        '</div>';
-    } else {
-      host.innerHTML = '<div class="note"><b>Form not connected yet.</b> Set <code>FORM_EMBED_URL</code> in assets/js/config.js to the Google Form link. Until then, submit via the link pinned in the Captains WhatsApp group.</div>';
-    }
-  }
-  if (sessionStorage.getItem(KEY) === "1") unlock();
-  document.getElementById("gate-btn").addEventListener("click", function () {
-    var v = document.getElementById("gate-code").value.trim();
-    if (v === ULDP.CAPTAIN_CODE) {
-      sessionStorage.setItem(KEY, "1");
-      unlock();
-    } else {
-      document.getElementById("gate-err").textContent = "That code isn't right — check your Captain briefing.";
-    }
-  });
-  document.getElementById("gate-code").addEventListener("keydown", function (e) {
-    if (e.key === "Enter") document.getElementById("gate-btn").click();
-  });
-})();
-</script>
+<body>
+<p style="font-family:sans-serif;text-align:center;margin-top:20vh">Redirecting to the <a href="captain.html">Captain Portal</a>…</p>
 </body>
 </html>
