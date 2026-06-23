@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Member Directory — ULDP 2026 Portal</title>
+<meta name="description" content="The ULDP 2026 Cohort 16 member directory — meet your cohort.">
+<meta name="robots" content="noindex,nofollow">
+<!-- Gate: must be logged in. (Demo mode lets you through when no backend is set.) -->
+<script>
+  (function () {
+    try {
+      var demo = !(window.localStorage);
+      if (sessionStorage.getItem("uldp-member") !== "1") {
+        // allow through only after participant login; redirect otherwise
+        location.replace("participant-login.html");
+      }
+    } catch (e) {}
+  })();
+</script>
+<link rel="icon" href="favicon.ico?v=2">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-32.png?v=2">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
+<link rel="stylesheet" href="assets/css/styles.css?v=21">
+</head>
+<body data-page="directory">
+<header class="site"></header>
+
+<div class="hero hero-tight">
+  <span class="geo tri-teal" style="left:4%;top:30%"></span>
+  <span class="geo dia-yellow" style="right:6%;bottom:16%"></span>
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Cohort 16 · Member directory</p>
+      <h1>Meet your cohort</h1>
+      <p class="sub">Eighty leaders, four Houses, one network. Search, filter, and get to know the people you'll spend the journey with.</p>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+
+    <!-- FILTER BAR -->
+    <div class="dirbar">
+      <input type="search" id="f-search" placeholder="🔍  Search a name, university, interest…" autocomplete="off">
+      <div class="dirbar-selects">
+        <select id="f-house"><option value="">All Houses</option></select>
+        <select id="f-uni"><option value="">All Universities</option></select>
+        <select id="f-state"><option value="">All States</option></select>
+        <select id="f-field"><option value="">All Fields</option></select>
+      </div>
+    </div>
+    <p class="dircount" id="dir-count"></p>
+
+    <!-- GRID -->
+    <div class="dirgrid" id="dir-grid"></div>
+    <p class="lead" id="dir-empty" style="display:none;text-align:center;padding:50px 0">No members match these filters.</p>
+
+  </div>
+</section>
+
+<!-- PROFILE MODAL -->
+<div class="modal" id="dir-modal" aria-hidden="true">
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card" role="dialog" aria-modal="true" id="modal-card"></div>
+</div>
+
+<footer class="site"></footer>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/include.js"></script>
+<script src="assets/js/main.js"></script>
+<script>
+(function () {
+  /* ---------- demo roster (used until DIRECTORY_API_URL is set) ---------- */
+  var DEMO = [
+    { full:"Nur Aisyah Binti Rahman", pref:"Aisyah", house:"visionaries", uni:"Universiti Malaya", state:"Selangor", field:"Computer Science",
+      industries:"Tech · Venture", team:"Team 3", social:"https://linkedin.com", roles:"House Captain", badges:["MVP Nominee","Debate Champ"],
+      personality:"ENTP · Strategist", askme:"Building startups, hackathons, and competitive debate.", hobbies:"Bouldering, film photography, kopi-hunting." },
+    { full:"Muhammad Irfan Bin Zulkifli", pref:"Irfan", house:"builders", uni:"Universiti Teknologi Malaysia", state:"Johor", field:"Mechanical Engineering",
+      industries:"Energy · Manufacturing", team:"Team 1", social:"https://linkedin.com", roles:"Logistics Lead", badges:["Most Improved"],
+      personality:"ISTJ · Anchor", askme:"Formula student, CAD, and disciplined morning routines.", hobbies:"Futsal, mechanical keyboards, nasi lemak runs." },
+    { full:"Tan Wei Ling", pref:"Wei Ling", house:"purpose", uni:"Universiti Kebangsaan Malaysia", state:"Penang", field:"Medicine",
+      industries:"Healthcare · Public Policy", team:"Team 4", social:"https://linkedin.com", roles:"Wellness Officer", badges:["Community Star"],
+      personality:"INFJ · Advocate", askme:"Public health, volunteering, and mentoring juniors.", hobbies:"Watercolour, hiking, baking sourdough." },
+    { full:"Arjun A/L Suresh", pref:"Arjun", house:"connectors", uni:"Universiti Putra Malaysia", state:"Kuala Lumpur", field:"Business Analytics",
+      industries:"Consulting · Finance", team:"Team 2", social:"https://linkedin.com", roles:"Events MC", badges:["Best Pitch","Networker"],
+      personality:"ESFP · Spark", askme:"Case competitions, public speaking, and growth hacking.", hobbies:"Stand-up comedy, basketball, vinyl records." },
+    { full:"Siti Nuraisyah Binti Kamal", pref:"Nura", house:"visionaries", uni:"Monash University Malaysia", state:"Selangor", field:"Actuarial Science",
+      industries:"Insurance · FinTech", team:"Team 1", social:"https://linkedin.com", roles:"Data Steward", badges:["Quant Whiz"],
+      personality:"INTJ · Architect", askme:"Risk modelling, chess, and productivity systems.", hobbies:"Chess, K-drama, crochet." },
+    { full:"Lim Jia Hao", pref:"Jia Hao", house:"builders", uni:"Universiti Sains Malaysia", state:"Penang", field:"Civil Engineering",
+      industries:"Construction · PropTech", team:"Team 3", social:"https://linkedin.com", roles:"Safety Marshal", badges:["Team Player"],
+      personality:"ISFJ · Protector", askme:"Sustainable design, scouting, and project planning.", hobbies:"Cycling, badminton, street food tours." },
+    { full:"Farah Hannani Binti Idris", pref:"Farah", house:"purpose", uni:"International Islamic University", state:"Pahang", field:"Law",
+      industries:"Legal · Human Rights", team:"Team 2", social:"https://linkedin.com", roles:"Documentation Lead", badges:["Voice of Reason"],
+      personality:"ENFJ · Mentor", askme:"Moot court, advocacy, and writing.", hobbies:"Poetry, calligraphy, tea ceremonies." },
+    { full:"Daniel Tan Jun Kai", pref:"Daniel", house:"connectors", uni:"Taylor's University", state:"Sabah", field:"Marketing",
+      industries:"Media · Brand", team:"Team 4", social:"https://linkedin.com", roles:"Social Media", badges:["Creative Lead","Hype Master"],
+      personality:"ENFP · Catalyst", askme:"Content creation, brand strategy, and travel.", hobbies:"Vlogging, scuba diving, guitar." },
+    { full:"Preetha A/P Maniam", pref:"Preetha", house:"visionaries", uni:"Universiti Teknologi MARA", state:"Negeri Sembilan", field:"Economics",
+      industries:"Policy · Development", team:"Team 4", social:"https://linkedin.com", roles:"Research Lead", badges:["Insight Award"],
+      personality:"INTP · Analyst", askme:"Behavioural economics and data storytelling.", hobbies:"Reading, podcasts, long runs." }
+  ];
+
+  var HOUSES = { visionaries:"Visionaries", builders:"Builders", purpose:"Purpose", connectors:"Connectors" };
+  var DATA = [];
+
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]}); }
+  function initials(name){ return String(name||"?").trim().split(/\s+/).slice(0,2).map(function(w){return w[0]}).join("").toUpperCase(); }
+  function badgesArr(b){ return Array.isArray(b) ? b : String(b||"").split(/[;,|]/).map(function(x){return x.trim()}).filter(Boolean); }
+
+  function uniq(key){ var s={}; DATA.forEach(function(p){ if(p[key]) s[p[key]]=1; }); return Object.keys(s).sort(); }
+  function fillSelect(id, vals){ var sel=document.getElementById(id); vals.forEach(function(v){ var o=document.createElement("option"); o.value=v; o.textContent=v; sel.appendChild(o); }); }
+
+  function avatar(p, big){
+    var cls = "avatar h-" + esc(p.house) + (big ? " big" : "");
+    if (p.photo) return '<div class="'+cls+'"><img src="'+esc(p.photo)+'" alt="'+esc(p.pref||p.full)+'" loading="lazy"></div>';
+    return '<div class="'+cls+'"><span>'+esc(initials(p.pref||p.full))+'</span></div>';
+  }
+
+  function card(p, i){
+    return '<button class="dircard reveal in" data-i="'+i+'">' +
+      avatar(p) +
+      '<div class="dc-body">' +
+        '<h3>'+esc(p.pref||p.full)+'</h3>' +
+        '<span class="dc-house h-'+esc(p.house)+'">'+esc(HOUSES[p.house]||p.house)+'</span>' +
+        '<p class="dc-uni">'+esc(p.uni)+'</p>' +
+        '<p class="dc-meta">'+esc(p.field)+' · '+esc(p.state)+'</p>' +
+      '</div>' +
+    '</button>';
+  }
+
+  function render(list){
+    var grid=document.getElementById("dir-grid");
+    document.getElementById("dir-count").textContent = list.length + (list.length===1?" member":" members");
+    document.getElementById("dir-empty").style.display = list.length ? "none" : "block";
+    grid.innerHTML = list.map(function(p){ return card(p, DATA.indexOf(p)); }).join("");
+    Array.prototype.forEach.call(grid.querySelectorAll(".dircard"), function(btn){
+      btn.addEventListener("click", function(){ openModal(DATA[+btn.dataset.i]); });
+    });
+  }
+
+  function applyFilters(){
+    var q=(document.getElementById("f-search").value||"").toLowerCase().trim();
+    var fh=document.getElementById("f-house").value, fu=document.getElementById("f-uni").value,
+        fs=document.getElementById("f-state").value, ff=document.getElementById("f-field").value;
+    render(DATA.filter(function(p){
+      if(fh && p.house!==fh) return false;
+      if(fu && p.uni!==fu) return false;
+      if(fs && p.state!==fs) return false;
+      if(ff && p.field!==ff) return false;
+      if(q){
+        var hay=[p.full,p.pref,p.uni,p.state,p.field,p.industries,p.askme,p.hobbies,p.roles].join(" ").toLowerCase();
+        if(hay.indexOf(q)===-1) return false;
+      }
+      return true;
+    }));
+  }
+
+  function row(label, val){
+    if(!val) return "";
+    return '<div class="pf-row"><span class="pf-k">'+esc(label)+'</span><span class="pf-v">'+esc(val)+'</span></div>';
+  }
+  function openModal(p){
+    var badges = badgesArr(p.badges);
+    var html =
+      '<button class="modal-x" data-close aria-label="Close">✕</button>' +
+      '<div class="pf-head">' + avatar(p, true) +
+        '<div><h2>'+esc(p.pref||p.full)+'</h2>' +
+        '<p class="pf-full">'+esc(p.full)+'</p>' +
+        '<span class="dc-house h-'+esc(p.house)+'">'+esc(HOUSES[p.house]||p.house)+'</span></div>' +
+      '</div>' +
+      (badges.length ? '<div class="pf-badges">'+badges.map(function(b){return '<span>🏅 '+esc(b)+'</span>'}).join("")+'</div>' : '') +
+      '<div class="pf-grid">' +
+        row("University", p.uni) + row("Home state", p.state) + row("Field of study", p.field) +
+        row("Target industries", p.industries) + row("Team", p.team) + row("Bootcamp role", p.roles) +
+        row("Personality", p.personality) +
+      '</div>' +
+      (p.askme ? '<div class="pf-block"><h4>Ask me about</h4><p>'+esc(p.askme)+'</p></div>' : '') +
+      (p.hobbies ? '<div class="pf-block"><h4>Off-duty passions</h4><p>'+esc(p.hobbies)+'</p></div>' : '') +
+      (p.social ? '<a class="btn btn-primary" href="'+esc(p.social)+'" target="_blank" rel="noopener">Connect <span class="arr">→</span></a>' : '');
+    document.getElementById("modal-card").innerHTML = html;
+    var m=document.getElementById("dir-modal");
+    m.classList.add("open"); m.setAttribute("aria-hidden","false");
+    document.body.style.overflow="hidden";
+    Array.prototype.forEach.call(m.querySelectorAll("[data-close]"), function(el){ el.addEventListener("click", closeModal); });
+  }
+  function closeModal(){
+    var m=document.getElementById("dir-modal");
+    m.classList.remove("open"); m.setAttribute("aria-hidden","true");
+    document.body.style.overflow="";
+  }
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape") closeModal(); });
+
+  function boot(data){
+    DATA = data;
+    fillSelect("f-house", Object.keys(HOUSES).filter(function(h){return DATA.some(function(p){return p.house===h})}).map(function(h){return h}));
+    // house select needs label/value distinct
+    var hs=document.getElementById("f-house"); hs.innerHTML='<option value="">All Houses</option>';
+    Object.keys(HOUSES).forEach(function(h){ if(DATA.some(function(p){return p.house===h})){ var o=document.createElement("option"); o.value=h; o.textContent=HOUSES[h]; hs.appendChild(o);} });
+    fillSelect("f-uni", uniq("uni")); fillSelect("f-state", uniq("state")); fillSelect("f-field", uniq("field"));
+    ["f-search","f-house","f-uni","f-state","f-field"].forEach(function(id){
+      document.getElementById(id).addEventListener("input", applyFilters);
+      document.getElementById(id).addEventListener("change", applyFilters);
+    });
+    render(DATA);
+  }
+
+  function load(){
+    if (ULDP.DIRECTORY_API_URL) {
+      var tok = sessionStorage.getItem("uldp-member-token") || "";
+      fetch(ULDP.DIRECTORY_API_URL + (ULDP.DIRECTORY_API_URL.indexOf("?")===-1?"?":"&") + "feed=directory&token=" + encodeURIComponent(tok), { cache:"no-store" })
+        .then(function(r){ return r.json(); })
+        .then(function(d){ boot((d && d.members && d.members.length) ? d.members : DEMO); })
+        .catch(function(){ boot(DEMO); });
+    } else {
+      boot(DEMO);
+    }
+  }
+  load();
+})();
+</script>
+</body>
+</html>

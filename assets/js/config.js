@@ -9,6 +9,10 @@ window.ULDP = {
   // Embedded Points Claim Google Form (the "embed" URL ending in ?embedded=true)
   FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLScVtOk8DC1tveQ8eHmYherzsSyDlzCRx82Ux6DIEJZfcP_YnA/viewform?embedded=true",
 
+  // Participant directory + login API (separate Apps Script web app /exec URL).
+  // Leave blank to run the directory in DEMO mode (sample roster, login = "preview").
+  DIRECTORY_API_URL: "",             // e.g. "https://script.google.com/macros/s/YYYY/exec"
+
   // Staff approval console — same Apps Script /exec URL + "?page=staff".
   // Leave blank to hide the discreet "Staff" footer link.
   STAFF_CONSOLE_URL: "https://script.google.com/macros/s/AKfycbwXamKSTa44rQRLomWdEAv6qF3I0VDZNj0FEzhzQ6EOTYVA0NM41sdaVa8AtpiG8g1Z/exec?page=staff",

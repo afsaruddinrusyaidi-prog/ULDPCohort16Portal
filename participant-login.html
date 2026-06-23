@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Participant Login — ULDP 2026 Portal</title>
+<meta name="description" content="ULDP 2026 Cohort 16 participant login.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="favicon.ico?v=2">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-32.png?v=2">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
+<link rel="stylesheet" href="assets/css/styles.css?v=21">
+</head>
+<body data-page="participant-login">
+<header class="site"></header>
+
+<div class="herostack">
+<div class="hero dark hero-tight">
+  <span class="geo tri-teal" style="left:6%;bottom:18%"></span>
+  <span class="geo dia-yellow" style="right:8%;top:18%"></span>
+  <div class="wrap">
+    <div class="authwrap">
+      <div class="authcard">
+        <img class="auth-logo" src="assets/img/logos/uldp-icon.png" alt="ULDP">
+        <p class="eyebrow" style="justify-content:center">Cohort 16 · Participant portal</p>
+        <h1>Welcome back</h1>
+        <p class="auth-sub">Sign in to reach your cohort directory and your profile.</p>
+
+        <label class="auth-label" for="email">Email</label>
+        <input type="email" id="email" placeholder="you@university.edu.my" autocomplete="username">
+
+        <label class="auth-label" for="pw">Password</label>
+        <div class="pwwrap">
+          <input type="password" id="pw" placeholder="Your password" autocomplete="current-password">
+          <button type="button" class="pwtog" id="pw-tog" aria-label="Show or hide password">👁</button>
+        </div>
+
+        <div class="err" id="auth-err"></div>
+        <button class="btn btn-primary" id="login-btn" style="width:100%;justify-content:center">Sign in <span class="arr">→</span></button>
+
+        <p class="auth-foot">Forgot your password? Message the programme team and we'll reset it for you.</p>
+        <p class="auth-demo" id="auth-demo" style="display:none">Preview mode — use any email with password <b>preview</b>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<footer class="site"></footer>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/include.js"></script>
+<script src="assets/js/main.js"></script>
+<script>
+(function () {
+  var DEMO = !ULDP.DIRECTORY_API_URL;
+  if (DEMO) document.getElementById("auth-demo").style.display = "block";
+
+  document.getElementById("pw-tog").addEventListener("click", function () {
+    var i = document.getElementById("pw");
+    var sh = i.type === "password";
+    i.type = sh ? "text" : "password";
+    this.textContent = sh ? "🙈" : "👁";
+  });
+
+  function fail(msg){ document.getElementById("auth-err").textContent = msg || "That didn't work — check your details."; }
+  function enter(token){
+    sessionStorage.setItem("uldp-member", "1");
+    if (token) sessionStorage.setItem("uldp-member-token", token);
+    location.href = "directory.html";
+  }
+
+  function submit(){
+    var email = document.getElementById("email").value.trim();
+    var pw = document.getElementById("pw").value;
+    if (!email || !pw) { fail("Enter your email and password."); return; }
+
+    if (DEMO) {
+      if (pw.toLowerCase() === "preview") enter("");
+      else fail("Preview mode — the password is “preview”.");
+      return;
+    }
+
+    var btn = document.getElementById("login-btn");
+    btn.disabled = true; document.getElementById("auth-err").textContent = "";
+    fetch(ULDP.DIRECTORY_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },   // simple request → no CORS preflight
+      body: JSON.stringify({ action: "login", email: email, password: pw })
+    })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        btn.disabled = false;
+        if (d && d.ok && d.token) enter(d.token);
+        else fail(d && d.error ? d.error : "Wrong email or password.");
+      })
+      .catch(function(){ btn.disabled = false; fail("Couldn't reach the server. Try again in a moment."); });
+  }
+
+  document.getElementById("login-btn").addEventListener("click", submit);
+  document.getElementById("pw").addEventListener("keydown", function(e){ if(e.key==="Enter") submit(); });
+  document.getElementById("email").addEventListener("keydown", function(e){ if(e.key==="Enter") document.getElementById("pw").focus(); });
+})();
+</script>
+</body>
+</html>
