@@ -4,14 +4,14 @@
    ============================================================ */
 window.ULDP = {
   // Apps Script Web App URL (deploy /apps-script/Code.gs, paste the /exec URL here)
-  API_URL: "",                       // e.g. "https://script.google.com/macros/s/XXXX/exec"
+  API_URL: "https://script.google.com/macros/s/AKfycbzUM81Z3idK4Wy3BmVQX9Lhh7d0bUDHUngdQB4swGlYOhON5kVBRPCauENHDkr018Yf/exec",
 
   // Embedded Points Claim Google Form (the "embed" URL ending in ?embedded=true)
-  FORM_EMBED_URL: "",                // e.g. "https://docs.google.com/forms/d/e/XXXX/viewform?embedded=true"
+  FORM_EMBED_URL: "https://docs.google.com/forms/d/e/1FAIpQLScVtOk8DC1tveQ8eHmYherzsSyDlzCRx82Ux6DIEJZfcP_YnA/viewform?embedded=true",
 
   // Staff approval console — same Apps Script /exec URL + "?page=staff".
   // Leave blank to hide the discreet "Staff" footer link.
-  STAFF_CONSOLE_URL: "",             // e.g. "https://script.google.com/macros/s/XXXX/exec?page=staff"
+  STAFF_CONSOLE_URL: "https://script.google.com/macros/s/AKfycbzUM81Z3idK4Wy3BmVQX9Lhh7d0bUDHUngdQB4swGlYOhON5kVBRPCauENHDkr018Yf/exec?page=staff",
 
   // Captain access code for submit.html (client-side gate; the Form itself
   // should ALSO restrict to logged-in Google accounts for real protection)

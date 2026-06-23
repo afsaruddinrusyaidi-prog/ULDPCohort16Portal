@@ -364,6 +364,12 @@ a.card{display:block}
 .gate input:focus{outline:none;border-color:var(--connectors)}
 .gate .err{color:var(--pink);font-size:.85rem;min-height:1.2em}
 .form-embed{margin-top:36px}.form-embed iframe{width:100%;min-height:1200px;border:0;border-radius:var(--radius);background:#fff}
+.form-open{margin-top:36px}
+.open-card{background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow-lg);border-radius:var(--radius-lg);border-top:5px solid var(--connectors);padding:42px;text-align:center;max-width:560px;margin:0 auto}
+.open-card h3{font-family:var(--display);text-transform:uppercase;font-size:1.7rem;margin-bottom:10px}
+.open-card p{color:var(--muted);font-size:.96rem;max-width:440px;margin:0 auto}
+.open-card .btn{margin:24px 0 6px}
+.open-card .open-note{font-size:.82rem;opacity:.8}
 
 /* ---------- Countdown ---------- */
 .count{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}

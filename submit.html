@@ -7,7 +7,7 @@
 <meta name="description" content="House Captain submission area for ULDP 2026.">
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="favicon.ico">
-<link rel="stylesheet" href="assets/css/styles.css?v=11">
+<link rel="stylesheet" href="assets/css/styles.css?v=12">
 </head>
 <body data-page="submit">
 <header class="site"></header>
@@ -57,8 +57,8 @@
         <b>The evidence rule:</b> every point claim must carry evidence — a photo, a screenshot, or a clear text account. No evidence, no points. For <b>individual (MVP)</b> claims, name the member the points belong to; you submit on their behalf, but the points are theirs.
       </div>
 
-      <div class="form-embed" id="form-host">
-        <!-- Google Form is injected here from config.js -->
+      <div class="form-open" id="form-host">
+        <!-- Open-form button is injected here from config.js -->
       </div>
 
     </div>
@@ -76,10 +76,17 @@
     document.getElementById("gate").style.display = "none";
     document.getElementById("gated").style.display = "block";
     var host = document.getElementById("form-host");
-    if (ULDP.FORM_EMBED_URL) {
-      host.innerHTML = '<iframe src="' + ULDP.FORM_EMBED_URL + '" loading="lazy" title="Points Claim Form">Loading…</iframe>';
+    var formUrl = ULDP.FORM_URL || (ULDP.FORM_EMBED_URL || "").replace("?embedded=true", "");
+    if (formUrl) {
+      host.innerHTML =
+        '<div class="open-card">' +
+          '<h3>Submit a points claim</h3>' +
+          '<p>The claim form opens in a new tab. You\'ll sign in with your Google account so we can attach your name and any photo evidence you upload.</p>' +
+          '<a class="btn btn-primary" href="' + formUrl + '" target="_blank" rel="noopener">Open the points claim form <span class="arr">→</span></a>' +
+          '<p class="open-note">Uploading a photo? You must be signed in to Google — that\'s why this opens in its own tab rather than here.</p>' +
+        '</div>';
     } else {
-      host.innerHTML = '<div class="note"><b>Form not connected yet.</b> Set <code>FORM_EMBED_URL</code> in assets/js/config.js to the Google Form embed link. Until then, submit via the link pinned in the Captains WhatsApp group.</div>';
+      host.innerHTML = '<div class="note"><b>Form not connected yet.</b> Set <code>FORM_EMBED_URL</code> in assets/js/config.js to the Google Form link. Until then, submit via the link pinned in the Captains WhatsApp group.</div>';
     }
   }
   if (sessionStorage.getItem(KEY) === "1") unlock();
