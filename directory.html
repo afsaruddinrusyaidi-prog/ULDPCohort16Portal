@@ -10,7 +10,7 @@
 <link rel="icon" href="favicon.ico?v=2">
 <link rel="icon" type="image/png" sizes="48x48" href="favicon-32.png?v=2">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
-<link rel="stylesheet" href="assets/css/styles.css?v=22">
+<link rel="stylesheet" href="assets/css/styles.css?v=23">
 </head>
 <body data-page="directory">
 <header class="site"></header>
@@ -20,7 +20,7 @@
   <span class="geo dia-yellow" style="right:6%;bottom:16%"></span>
   <div class="wrap">
     <div>
-      <p class="eyebrow">Cohort 16 · Member directory</p>
+      <p class="eyebrow">Cohort 16 · Participant directory</p>
       <h1>Meet your cohort</h1>
       <p class="sub">Eighty leaders, four Houses, one network. Search, filter, and get to know the people you'll spend the journey with.</p>
     </div>
@@ -75,7 +75,6 @@
     var perss=["ENTP · Strategist","ISTJ · Anchor","INFJ · Advocate","ESFP · Spark","INTJ · Architect","ISFJ · Protector","ENFJ · Mentor","ENFP · Catalyst","INTP · Analyst","ESTJ · Director"];
     var asks=["startups, hackathons and competitive debate","public health, volunteering and mentoring juniors","case competitions and public speaking","sustainable design and project planning","data storytelling and behavioural economics","content creation and brand strategy","moot court, advocacy and writing","risk modelling, chess and productivity systems"];
     var hobs=["Bouldering, film photography, kopi-hunting","Futsal, mechanical keyboards, nasi lemak runs","Watercolour, hiking, baking sourdough","Stand-up comedy, basketball, vinyl records","Chess, K-drama, crochet","Cycling, badminton, street food tours","Poetry, calligraphy, tea ceremonies","Vlogging, scuba diving, guitar"];
-    var roles=["House Captain","Logistics Lead","Wellness Officer","Events MC","Data Steward","Safety Marshal","Documentation Lead","Social Media","Research Lead","Member","Member","Member"];
     var badgePool=["MVP Nominee","Most Improved","Community Star","Best Pitch","Networker","Quant Whiz","Team Player","Voice of Reason","Creative Lead","Insight Award"];
     var houses=["visionaries","builders","purpose","connectors"];
     var s=7; function rnd(){ s=(s*9301+49297)%233280; return s/233280; }
@@ -89,7 +88,7 @@
         full: fnm+" "+lnm, pref: fnm, house: houses[i%4],
         uni: pick(unis), state: pick(states), field: pick(fields),
         industries: pick(inds), team: "Team "+(1+(i%8)), social:"https://linkedin.com",
-        roles: pick(roles), badges: badges, personality: pick(perss),
+        badges: badges, personality: pick(perss),
         askme: "Ask me about "+pick(asks)+".", hobbies: pick(hobs)
       });
     }
@@ -120,13 +119,12 @@
         '<span class="dc-house h-'+esc(p.house)+'">'+esc(HOUSES[p.house]||p.house)+'</span>' +
         '<p class="dc-uni">'+esc(p.uni)+'</p>' +
         '<p class="dc-meta">'+esc(p.field)+' · '+esc(p.state)+'</p>' +
-        '<p class="dc-team">'+esc(p.team)+'</p>' +
       '</div></button>';
   }
 
   function render(list){
     var grid=document.getElementById("dir-grid");
-    document.getElementById("dir-count").textContent = list.length + (list.length===1?" member":" members");
+    document.getElementById("dir-count").textContent = list.length + (list.length===1?" participant":" participants");
     document.getElementById("dir-empty").style.display = list.length ? "none" : "block";
     grid.innerHTML = list.map(function(p){ return card(p, DATA.indexOf(p)); }).join("");
     Array.prototype.forEach.call(grid.querySelectorAll(".dircard"), function(btn){
@@ -146,7 +144,7 @@
       if(fs && p.state!==fs) return false;
       if(ff && p.field!==ff) return false;
       if(q){
-        var hay=[p.full,p.pref,p.uni,p.state,p.field,p.industries,p.askme,p.hobbies,p.roles,p.team].join(" ").toLowerCase();
+        var hay=[p.full,p.pref,p.uni,p.state,p.field,p.industries,p.askme,p.hobbies,p.team].join(" ").toLowerCase();
         if(hay.indexOf(q)===-1) return false;
       }
       return true;
@@ -166,7 +164,7 @@
       (badges.length ? '<div class="pf-badges">'+badges.map(function(b){return '<span>🏅 '+esc(b)+'</span>'}).join("")+'</div>' : '') +
       '<div class="pf-grid">' +
         row("University", p.uni) + row("Home state", p.state) + row("Field of study", p.field) +
-        row("Target industries", p.industries) + row("Team", p.team) + row("Bootcamp role", p.roles) +
+        row("Target industries", p.industries) + row("Team", p.team) +
         row("Personality", p.personality) +
       '</div>' +
       (p.askme ? '<div class="pf-block"><h4>Ask me about</h4><p>'+esc(p.askme)+'</p></div>' : '') +
