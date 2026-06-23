@@ -3,25 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="assets/js/gate.js"></script>
 <title>Member Directory — ULDP 2026 Portal</title>
 <meta name="description" content="The ULDP 2026 Cohort 16 member directory — meet your cohort.">
 <meta name="robots" content="noindex,nofollow">
-<!-- Gate: must be logged in. (Demo mode lets you through when no backend is set.) -->
-<script>
-  (function () {
-    try {
-      var demo = !(window.localStorage);
-      if (sessionStorage.getItem("uldp-member") !== "1") {
-        // allow through only after participant login; redirect otherwise
-        location.replace("participant-login.html");
-      }
-    } catch (e) {}
-  })();
-</script>
 <link rel="icon" href="favicon.ico?v=2">
 <link rel="icon" type="image/png" sizes="48x48" href="favicon-32.png?v=2">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
-<link rel="stylesheet" href="assets/css/styles.css?v=21">
+<link rel="stylesheet" href="assets/css/styles.css?v=22">
 </head>
 <body data-page="directory">
 <header class="site"></header>
@@ -46,6 +35,7 @@
       <input type="search" id="f-search" placeholder="🔍  Search a name, university, interest…" autocomplete="off">
       <div class="dirbar-selects">
         <select id="f-house"><option value="">All Houses</option></select>
+        <select id="f-team"><option value="">All Teams</option></select>
         <select id="f-uni"><option value="">All Universities</option></select>
         <select id="f-state"><option value="">All States</option></select>
         <select id="f-field"><option value="">All Fields</option></select>
@@ -72,38 +62,40 @@
 <script src="assets/js/main.js"></script>
 <script>
 (function () {
-  /* ---------- demo roster (used until DIRECTORY_API_URL is set) ---------- */
-  var DEMO = [
-    { full:"Nur Aisyah Binti Rahman", pref:"Aisyah", house:"visionaries", uni:"Universiti Malaya", state:"Selangor", field:"Computer Science",
-      industries:"Tech · Venture", team:"Team 3", social:"https://linkedin.com", roles:"House Captain", badges:["MVP Nominee","Debate Champ"],
-      personality:"ENTP · Strategist", askme:"Building startups, hackathons, and competitive debate.", hobbies:"Bouldering, film photography, kopi-hunting." },
-    { full:"Muhammad Irfan Bin Zulkifli", pref:"Irfan", house:"builders", uni:"Universiti Teknologi Malaysia", state:"Johor", field:"Mechanical Engineering",
-      industries:"Energy · Manufacturing", team:"Team 1", social:"https://linkedin.com", roles:"Logistics Lead", badges:["Most Improved"],
-      personality:"ISTJ · Anchor", askme:"Formula student, CAD, and disciplined morning routines.", hobbies:"Futsal, mechanical keyboards, nasi lemak runs." },
-    { full:"Tan Wei Ling", pref:"Wei Ling", house:"purpose", uni:"Universiti Kebangsaan Malaysia", state:"Penang", field:"Medicine",
-      industries:"Healthcare · Public Policy", team:"Team 4", social:"https://linkedin.com", roles:"Wellness Officer", badges:["Community Star"],
-      personality:"INFJ · Advocate", askme:"Public health, volunteering, and mentoring juniors.", hobbies:"Watercolour, hiking, baking sourdough." },
-    { full:"Arjun A/L Suresh", pref:"Arjun", house:"connectors", uni:"Universiti Putra Malaysia", state:"Kuala Lumpur", field:"Business Analytics",
-      industries:"Consulting · Finance", team:"Team 2", social:"https://linkedin.com", roles:"Events MC", badges:["Best Pitch","Networker"],
-      personality:"ESFP · Spark", askme:"Case competitions, public speaking, and growth hacking.", hobbies:"Stand-up comedy, basketball, vinyl records." },
-    { full:"Siti Nuraisyah Binti Kamal", pref:"Nura", house:"visionaries", uni:"Monash University Malaysia", state:"Selangor", field:"Actuarial Science",
-      industries:"Insurance · FinTech", team:"Team 1", social:"https://linkedin.com", roles:"Data Steward", badges:["Quant Whiz"],
-      personality:"INTJ · Architect", askme:"Risk modelling, chess, and productivity systems.", hobbies:"Chess, K-drama, crochet." },
-    { full:"Lim Jia Hao", pref:"Jia Hao", house:"builders", uni:"Universiti Sains Malaysia", state:"Penang", field:"Civil Engineering",
-      industries:"Construction · PropTech", team:"Team 3", social:"https://linkedin.com", roles:"Safety Marshal", badges:["Team Player"],
-      personality:"ISFJ · Protector", askme:"Sustainable design, scouting, and project planning.", hobbies:"Cycling, badminton, street food tours." },
-    { full:"Farah Hannani Binti Idris", pref:"Farah", house:"purpose", uni:"International Islamic University", state:"Pahang", field:"Law",
-      industries:"Legal · Human Rights", team:"Team 2", social:"https://linkedin.com", roles:"Documentation Lead", badges:["Voice of Reason"],
-      personality:"ENFJ · Mentor", askme:"Moot court, advocacy, and writing.", hobbies:"Poetry, calligraphy, tea ceremonies." },
-    { full:"Daniel Tan Jun Kai", pref:"Daniel", house:"connectors", uni:"Taylor's University", state:"Sabah", field:"Marketing",
-      industries:"Media · Brand", team:"Team 4", social:"https://linkedin.com", roles:"Social Media", badges:["Creative Lead","Hype Master"],
-      personality:"ENFP · Catalyst", askme:"Content creation, brand strategy, and travel.", hobbies:"Vlogging, scuba diving, guitar." },
-    { full:"Preetha A/P Maniam", pref:"Preetha", house:"visionaries", uni:"Universiti Teknologi MARA", state:"Negeri Sembilan", field:"Economics",
-      industries:"Policy · Development", team:"Team 4", social:"https://linkedin.com", roles:"Research Lead", badges:["Insight Award"],
-      personality:"INTP · Analyst", askme:"Behavioural economics and data storytelling.", hobbies:"Reading, podcasts, long runs." }
-  ];
-
   var HOUSES = { visionaries:"Visionaries", builders:"Builders", purpose:"Purpose", connectors:"Connectors" };
+
+  /* ---------- demo roster: generate a full cohort of 80 ---------- */
+  function buildDemo(){
+    var first=["Aisyah","Irfan","Wei Ling","Arjun","Nura","Jia Hao","Farah","Daniel","Preetha","Hakim","Mei Yan","Suresh","Liyana","Zikri","Yong Sheng","Anand","Balqis","Wai Kit","Divya","Faiz","Hui Min","Rajesh","Syafiq","Xin Yi","Kavya","Amir","Joey","Vimala","Danish","Qistina","Bryan","Shanti","Haziq","Cheng Han","Nadia","Karthik","Elaine","Rizal","Pavithra","Lukas","Iman","Wen Jie","Sofea","Adam","Li Wei","Meera","Hafiz","Jocelyn","Pravin","Tasha"];
+    var last=["Rahman","Zulkifli","Tan","Suresh","Kamal","Lim","Idris","Wong","Maniam","Abdullah","Lee","Krishnan","Hashim","Ng","Pillai","Yusof","Chong","Ramasamy","Aziz","Goh","Ismail","Subramaniam","Teh","Bakar","Loh"];
+    var unis=["Universiti Malaya","Universiti Kebangsaan Malaysia","Universiti Sains Malaysia","Universiti Putra Malaysia","Universiti Teknologi Malaysia","Universiti Teknologi MARA","International Islamic University","Monash University Malaysia","Taylor's University","Sunway University","Multimedia University","Universiti Utara Malaysia"];
+    var states=["Selangor","Kuala Lumpur","Penang","Johor","Perak","Sabah","Sarawak","Negeri Sembilan","Pahang","Kedah","Melaka","Terengganu","Kelantan"];
+    var fields=["Computer Science","Mechanical Engineering","Medicine","Business Analytics","Actuarial Science","Civil Engineering","Law","Marketing","Economics","Accounting","Psychology","Design","Data Science","Biotechnology"];
+    var inds=["Tech · Venture","Consulting · Finance","Healthcare · Policy","Energy · Manufacturing","Media · Brand","Legal · Human Rights","FinTech · Banking","Public Sector","Education · Social"];
+    var perss=["ENTP · Strategist","ISTJ · Anchor","INFJ · Advocate","ESFP · Spark","INTJ · Architect","ISFJ · Protector","ENFJ · Mentor","ENFP · Catalyst","INTP · Analyst","ESTJ · Director"];
+    var asks=["startups, hackathons and competitive debate","public health, volunteering and mentoring juniors","case competitions and public speaking","sustainable design and project planning","data storytelling and behavioural economics","content creation and brand strategy","moot court, advocacy and writing","risk modelling, chess and productivity systems"];
+    var hobs=["Bouldering, film photography, kopi-hunting","Futsal, mechanical keyboards, nasi lemak runs","Watercolour, hiking, baking sourdough","Stand-up comedy, basketball, vinyl records","Chess, K-drama, crochet","Cycling, badminton, street food tours","Poetry, calligraphy, tea ceremonies","Vlogging, scuba diving, guitar"];
+    var roles=["House Captain","Logistics Lead","Wellness Officer","Events MC","Data Steward","Safety Marshal","Documentation Lead","Social Media","Research Lead","Member","Member","Member"];
+    var badgePool=["MVP Nominee","Most Improved","Community Star","Best Pitch","Networker","Quant Whiz","Team Player","Voice of Reason","Creative Lead","Insight Award"];
+    var houses=["visionaries","builders","purpose","connectors"];
+    var s=7; function rnd(){ s=(s*9301+49297)%233280; return s/233280; }
+    function pick(a){ return a[Math.floor(rnd()*a.length)]; }
+    var out=[];
+    for(var i=0;i<80;i++){
+      var fnm=first[i % first.length], lnm=pick(last);
+      var nb=Math.floor(rnd()*3), badges=[];
+      for(var b=0;b<nb;b++){ var bd=pick(badgePool); if(badges.indexOf(bd)===-1) badges.push(bd); }
+      out.push({
+        full: fnm+" "+lnm, pref: fnm, house: houses[i%4],
+        uni: pick(unis), state: pick(states), field: pick(fields),
+        industries: pick(inds), team: "Team "+(1+(i%8)), social:"https://linkedin.com",
+        roles: pick(roles), badges: badges, personality: pick(perss),
+        askme: "Ask me about "+pick(asks)+".", hobbies: pick(hobs)
+      });
+    }
+    return out;
+  }
+  var DEMO = buildDemo();
   var DATA = [];
 
   function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]}); }
@@ -111,6 +103,8 @@
   function badgesArr(b){ return Array.isArray(b) ? b : String(b||"").split(/[;,|]/).map(function(x){return x.trim()}).filter(Boolean); }
 
   function uniq(key){ var s={}; DATA.forEach(function(p){ if(p[key]) s[p[key]]=1; }); return Object.keys(s).sort(); }
+  function uniqTeams(){ var s={}; DATA.forEach(function(p){ if(p.team) s[p.team]=1; });
+    return Object.keys(s).sort(function(a,b){ return (parseInt(a.replace(/\D/g,""),10)||0)-(parseInt(b.replace(/\D/g,""),10)||0); }); }
   function fillSelect(id, vals){ var sel=document.getElementById(id); vals.forEach(function(v){ var o=document.createElement("option"); o.value=v; o.textContent=v; sel.appendChild(o); }); }
 
   function avatar(p, big){
@@ -120,15 +114,14 @@
   }
 
   function card(p, i){
-    return '<button class="dircard reveal in" data-i="'+i+'">' +
-      avatar(p) +
+    return '<button class="dircard" data-i="'+i+'">' + avatar(p) +
       '<div class="dc-body">' +
         '<h3>'+esc(p.pref||p.full)+'</h3>' +
         '<span class="dc-house h-'+esc(p.house)+'">'+esc(HOUSES[p.house]||p.house)+'</span>' +
         '<p class="dc-uni">'+esc(p.uni)+'</p>' +
         '<p class="dc-meta">'+esc(p.field)+' · '+esc(p.state)+'</p>' +
-      '</div>' +
-    '</button>';
+        '<p class="dc-team">'+esc(p.team)+'</p>' +
+      '</div></button>';
   }
 
   function render(list){
@@ -143,25 +136,24 @@
 
   function applyFilters(){
     var q=(document.getElementById("f-search").value||"").toLowerCase().trim();
-    var fh=document.getElementById("f-house").value, fu=document.getElementById("f-uni").value,
-        fs=document.getElementById("f-state").value, ff=document.getElementById("f-field").value;
+    var fh=document.getElementById("f-house").value, ft=document.getElementById("f-team").value,
+        fu=document.getElementById("f-uni").value, fs=document.getElementById("f-state").value,
+        ff=document.getElementById("f-field").value;
     render(DATA.filter(function(p){
       if(fh && p.house!==fh) return false;
+      if(ft && p.team!==ft) return false;
       if(fu && p.uni!==fu) return false;
       if(fs && p.state!==fs) return false;
       if(ff && p.field!==ff) return false;
       if(q){
-        var hay=[p.full,p.pref,p.uni,p.state,p.field,p.industries,p.askme,p.hobbies,p.roles].join(" ").toLowerCase();
+        var hay=[p.full,p.pref,p.uni,p.state,p.field,p.industries,p.askme,p.hobbies,p.roles,p.team].join(" ").toLowerCase();
         if(hay.indexOf(q)===-1) return false;
       }
       return true;
     }));
   }
 
-  function row(label, val){
-    if(!val) return "";
-    return '<div class="pf-row"><span class="pf-k">'+esc(label)+'</span><span class="pf-v">'+esc(val)+'</span></div>';
-  }
+  function row(label, val){ if(!val) return ""; return '<div class="pf-row"><span class="pf-k">'+esc(label)+'</span><span class="pf-v">'+esc(val)+'</span></div>'; }
   function openModal(p){
     var badges = badgesArr(p.badges);
     var html =
@@ -195,12 +187,10 @@
 
   function boot(data){
     DATA = data;
-    fillSelect("f-house", Object.keys(HOUSES).filter(function(h){return DATA.some(function(p){return p.house===h})}).map(function(h){return h}));
-    // house select needs label/value distinct
     var hs=document.getElementById("f-house"); hs.innerHTML='<option value="">All Houses</option>';
     Object.keys(HOUSES).forEach(function(h){ if(DATA.some(function(p){return p.house===h})){ var o=document.createElement("option"); o.value=h; o.textContent=HOUSES[h]; hs.appendChild(o);} });
-    fillSelect("f-uni", uniq("uni")); fillSelect("f-state", uniq("state")); fillSelect("f-field", uniq("field"));
-    ["f-search","f-house","f-uni","f-state","f-field"].forEach(function(id){
+    fillSelect("f-team", uniqTeams()); fillSelect("f-uni", uniq("uni")); fillSelect("f-state", uniq("state")); fillSelect("f-field", uniq("field"));
+    ["f-search","f-house","f-team","f-uni","f-state","f-field"].forEach(function(id){
       document.getElementById(id).addEventListener("input", applyFilters);
       document.getElementById(id).addEventListener("change", applyFilters);
     });
@@ -214,9 +204,7 @@
         .then(function(r){ return r.json(); })
         .then(function(d){ boot((d && d.members && d.members.length) ? d.members : DEMO); })
         .catch(function(){ boot(DEMO); });
-    } else {
-      boot(DEMO);
-    }
+    } else { boot(DEMO); }
   }
   load();
 })();

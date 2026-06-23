@@ -613,6 +613,7 @@ h1,h2,h3,.sechead h2,.featrow .ft h3,.tl-item h3,.house-card h3,.htile h3{overfl
 .dc-house.h-visionaries{background:var(--visionaries)}.dc-house.h-builders{background:var(--builders)}.dc-house.h-purpose{background:var(--purpose)}.dc-house.h-connectors{background:var(--connectors)}
 .dc-uni{font-size:.9rem;color:var(--ink-soft);font-weight:600;margin:0 0 2px}
 .dc-meta{font-size:.82rem;color:var(--muted);margin:0}
+.dc-team{display:inline-block;margin-top:8px;font-size:.7rem;font-weight:700;letter-spacing:.05em;color:var(--ink-soft);background:var(--cream);border:1px solid var(--line);padding:3px 10px;border-radius:999px}
 @media(max-width:520px){.dirgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}.dircard{padding:20px 10px}.avatar{width:64px;height:64px;font-size:1.2rem}}
 
 .modal{position:fixed;inset:0;z-index:200;display:none}
