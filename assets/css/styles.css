@@ -189,6 +189,16 @@ header.site.scrolled .nav .brand img{height:30px}
 .stats .st b::after{content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:32px;height:4px;border-radius:2px;background:linear-gradient(90deg,#FFCB3D,var(--yellow))}
 .stats .st small{display:block;margin-top:14px;font-family:var(--display);text-transform:uppercase;letter-spacing:.2em;color:var(--muted);font-size:.82rem}
 @media(max-width:560px){.stats{padding:44px 14px 18px;column-gap:0}.stats .st{padding:4px 8px}.stats .st b{font-size:2.3rem;padding-bottom:10px}.stats .st b::after{width:24px;height:3px}.stats .st small{font-size:.62rem;letter-spacing:.1em}}
+/* Dark "proof" zone — stats + alumni flow seamlessly out of the dark hero */
+.proof{position:relative;background:linear-gradient(180deg,#080b18 0%,#0a0e1e 55%,#0b0f20 100%)}
+.proof .stats .st + .st{border-left-color:rgba(255,255,255,.10)}
+.proof .stats .st b{color:#fff}
+.proof .stats .st small{color:#9aa2c0}
+.proof .alumni{background:transparent;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08)}
+.proof .alumni .lab{color:#8b93b2}
+.proof .alumni .lab b{color:#fff}
+.proof .alumni .track span{color:#aeb6ce;opacity:.45}
+.proof .alumni .track span:hover{opacity:1;color:var(--yellow)}
 
 /* ---------- Section heads ---------- */
 .sechead{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:48px;flex-wrap:wrap}
