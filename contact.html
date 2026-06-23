@@ -9,7 +9,7 @@
 <link rel="icon" href="favicon.ico?v=2">
 <link rel="icon" type="image/png" sizes="48x48" href="favicon-32.png?v=2">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
-<link rel="stylesheet" href="assets/css/styles.css?v=24">
+<link rel="stylesheet" href="assets/css/styles.css?v=25">
 </head>
 <body data-page="contact">
 <header class="site"></header>
@@ -37,7 +37,7 @@
       <h2>Axiata Foundation · AYTP</h2>
     </div>
     <div class="grid c3" style="margin-top:36px">
-      <div class="contact-card reveal" style="--accent:var(--purpose)">
+      <div class="contact-card cc-click reveal" data-person="zahira" style="--accent:var(--purpose)">
         <div class="avatar photo"><img src="assets/img/team/zahira.jpg" alt="Zahira Nizam"></div>
         <h3>Zahira Nizam</h3>
         <p class="role">AYTP · Programme Director</p>
@@ -45,8 +45,9 @@
           <a class="tel" href="tel:+60133013291">📞 +60 13-301 3291</a>
           <a href="mailto:zahira@axiata.com">✉️ zahira@axiata.com</a>
         </div>
+        <span class="cc-more">View profile →</span>
       </div>
-      <div class="contact-card reveal" style="--accent:var(--connectors)">
+      <div class="contact-card cc-click reveal" data-person="afsar" style="--accent:var(--connectors)">
         <div class="avatar photo"><img src="assets/img/team/afsaruddin.png" alt="Afsaruddin Rusyaidi"></div>
         <h3>Afsaruddin Rusyaidi</h3>
         <p class="role">AYTP · Participant Experience</p>
@@ -54,8 +55,9 @@
           <a class="tel" href="tel:+601155040554">📞 +60 11-5504 0554</a>
           <a href="mailto:afsaruddin@axiata.com">✉️ afsaruddin@axiata.com</a>
         </div>
+        <span class="cc-more">View profile →</span>
       </div>
-      <div class="contact-card reveal" style="--accent:var(--builders)">
+      <div class="contact-card cc-click reveal" data-person="zaim" style="--accent:var(--builders)">
         <div class="avatar photo"><img src="assets/img/team/zaim.jpg" alt="Mohd Zaim Ridzal"></div>
         <h3>Mohd Zaim Ridzal</h3>
         <p class="role">AYTP · Game Master &amp; Standings</p>
@@ -63,6 +65,7 @@
           <a class="tel" href="tel:+60122249939">📞 +60 12-224 9939</a>
           <a href="mailto:zaimridzal@axiata.com">✉️ zaimridzal@axiata.com</a>
         </div>
+        <span class="cc-more">View profile →</span>
       </div>
     </div>
   </div>
@@ -111,9 +114,77 @@
   </div>
 </section>
 
+<!-- TEAM PROFILE MODAL -->
+<div class="modal" id="team-modal" aria-hidden="true">
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card" role="dialog" aria-modal="true" id="team-modal-card"></div>
+</div>
+
 <footer class="site"></footer>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/include.js"></script>
 <script src="assets/js/main.js"></script>
+<script>
+(function () {
+  var P = {
+    zahira: {
+      name:"Zahira Nizam", title:"The Chancellor", role:"AYTP · Programme Director",
+      photo:"assets/img/team/zahira.jpg", house:"purpose",
+      tel:"+60 13-301 3291", telhref:"tel:+60133013291", email:"zahira@axiata.com",
+      linkedin:"https://www.linkedin.com/in/sznizam/",
+      about:"Experienced Program Manager and EX designer with a demonstrated history of working in the telecommunications industry. Skilled in Communication, Event Management, Teamwork, Leadership, and Microsoft Excel. Strong education professional with a Bachelor of Arts (B.A.) focused in International Relations and Affairs, Anthropology, Women & Gender Studies from University of Toronto."
+    },
+    afsar: {
+      name:"Afsaruddin Rusyaidi", title:"The Warden", role:"AYTP · Participant Experience",
+      photo:"assets/img/team/afsaruddin.png", house:"connectors",
+      tel:"+60 11-5504 0554", telhref:"tel:+601155040554", email:"afsaruddin@axiata.com",
+      linkedin:"https://www.linkedin.com/in/afsaruddinrusyaidi/",
+      about:"ULDP Cohort 15 Alumnus & Top 20 Performer — returned to the Academy to orchestrate The Race.",
+      cohort15:[
+        "4th Simulation — Champion (CFO & Product Lead)",
+        "3rd Simulation — 2nd Runner-Up",
+        "2nd Simulation — 1st Runner-Up (Head Strat.)",
+        "1st Simulation — 1st Runner-Up (CSO)",
+        "Bonus Challenge — 1st Runner-Up"
+      ]
+    },
+    zaim: {
+      name:"Mohd Zaim Ridzal", title:"The Dean", role:"AYTP · Game Master & Standings",
+      photo:"assets/img/team/zaim.jpg", house:"builders",
+      tel:"+60 12-224 9939", telhref:"tel:+60122249939", email:"zaimridzal@axiata.com",
+      linkedin:"https://www.linkedin.com/in/mohd-zaim-bin-mohd-ridzal/",
+      about:"Mohd Zaim is an individual with 4 years of work experience in the telecommunications and EV charging industries. His career journey includes being a management associate in Maxis' 2021 Sales and Services Graduate Programme, taking on the role of a lead trainer in the Learning and Development unit, and currently serving as Campaign Management specialist in the CelcomDigi Sales & Retail division.\nAdditionally, Mohd Zaim has gained valuable experience as a Marketing Executive for Time Charge N Go, where he contributed to crafting marketing strategies, enhancing brand visibility, and driving customer engagement in the EV charging sector.\nHis skill set includes business development, conducting training programs, digital content creation, client management, and strategic marketing."
+    }
+  };
+
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]}); }
+
+  function openModal(key){
+    var p = P[key]; if(!p) return;
+    var about = p.about.split(/\n+/).map(function(par){ return '<p>'+esc(par)+'</p>'; }).join("");
+    var html =
+      '<button class="modal-x" data-close aria-label="Close">✕</button>' +
+      '<div class="pf-head"><div class="avatar big h-'+p.house+'"><img src="'+esc(p.photo)+'" alt="'+esc(p.name)+'"></div>' +
+        '<div><h2>'+esc(p.name)+'</h2><span class="pf-title">'+esc(p.title)+'</span><p class="pf-full">'+esc(p.role)+'</p></div></div>' +
+      '<div class="pf-block"><h4>About</h4>'+about+'</div>' +
+      (p.cohort15 ? '<div class="pf-block"><h4>ULDP Cohort 15 · The Record</h4><ul class="pf-list">'+p.cohort15.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul></div>' : '') +
+      '<div class="pf-contact"><a href="'+p.telhref+'">📞 '+esc(p.tel)+'</a><a href="mailto:'+esc(p.email)+'">✉️ '+esc(p.email)+'</a></div>' +
+      '<a class="btn btn-primary" href="'+esc(p.linkedin)+'" target="_blank" rel="noopener">View LinkedIn <span class="arr">→</span></a>';
+    document.getElementById("team-modal-card").innerHTML = html;
+    var m = document.getElementById("team-modal");
+    m.classList.add("open"); m.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden";
+    Array.prototype.forEach.call(m.querySelectorAll("[data-close]"), function(el){ el.addEventListener("click", close); });
+  }
+  function close(){ var m=document.getElementById("team-modal"); m.classList.remove("open"); m.setAttribute("aria-hidden","true"); document.body.style.overflow=""; }
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape") close(); });
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-person]"), function(card){
+    card.addEventListener("click", function(e){
+      if(e.target.closest("a")) return;        // let phone/email links work
+      openModal(card.getAttribute("data-person"));
+    });
+  });
+})();
+</script>
 </body>
 </html>

@@ -636,6 +636,15 @@ h1,h2,h3,.sechead h2,.featrow .ft h3,.tl-item h3,.house-card h3,.htile h3{overfl
 .pf-block{margin-bottom:16px}
 .pf-block h4{font-family:var(--display);text-transform:uppercase;font-size:.82rem;letter-spacing:.08em;color:var(--connectors);margin:0 0 5px}
 .pf-block p{color:var(--ink-soft);font-size:.95rem;line-height:1.5;margin:0}
+.pf-block p + p{margin-top:10px}
+.pf-title{display:inline-block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#241900;background:linear-gradient(135deg,#FFCB3D,var(--yellow));padding:4px 11px;border-radius:999px;margin:4px 0 8px}
+.pf-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.pf-list li{font-size:.9rem;color:var(--ink-soft);padding-left:26px;position:relative;line-height:1.45}
+.pf-list li::before{content:"🏆";position:absolute;left:0;top:0;font-size:.85rem}
+.pf-contact{display:flex;flex-wrap:wrap;gap:8px 18px;margin:8px 0 16px}
+.pf-contact a{color:var(--connectors);font-weight:600;font-size:.92rem}
+.cc-click{cursor:pointer}
+.cc-more{display:inline-block;margin-top:14px;font-family:var(--display);text-transform:uppercase;letter-spacing:.08em;font-size:.72rem;color:var(--connectors);font-weight:700}
 .modal-card .btn{width:100%;justify-content:center}
 @media(max-width:480px){.pf-grid{grid-template-columns:1fr}.modal-card{padding:26px 20px}.pf-head{flex-direction:column;text-align:center}}
 
