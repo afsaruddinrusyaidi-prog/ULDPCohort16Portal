@@ -189,15 +189,18 @@ header.site.scrolled .nav .brand img{height:30px}
 .stats .st b::after{content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:32px;height:4px;border-radius:2px;background:linear-gradient(90deg,#FFCB3D,var(--yellow))}
 .stats .st small{display:block;margin-top:14px;font-family:var(--display);text-transform:uppercase;letter-spacing:.2em;color:var(--muted);font-size:.82rem}
 @media(max-width:560px){.stats{padding:44px 14px 18px;column-gap:0}.stats .st{padding:4px 8px}.stats .st b{font-size:2.3rem;padding-bottom:10px}.stats .st b::after{width:24px;height:3px}.stats .st small{font-size:.62rem;letter-spacing:.1em}}
-/* Hero + proof share ONE dark canvas → no seam between them */
+/* Hero + proof share ONE rich dark canvas → seamless, pretty top to bottom */
 .herostack{position:relative;background:
-  radial-gradient(120% 65% at 85% 2%,rgba(39,66,224,.30),transparent 48%),
-  radial-gradient(85% 55% at -5% 34%,rgba(15,162,149,.22),transparent 55%),
-  radial-gradient(75% 50% at 55% 100%,rgba(224,36,126,.07),transparent 60%),
-  linear-gradient(180deg,#0c1124 0%,#0a0e1e 52%,#080b18 100%)}
+  radial-gradient(110% 60% at 82% 0%,rgba(39,66,224,.34),transparent 50%),     /* blue · top-right */
+  radial-gradient(80% 55% at -8% 28%,rgba(15,162,149,.26),transparent 55%),    /* teal · mid-left */
+  radial-gradient(70% 46% at 104% 70%,rgba(15,162,149,.20),transparent 55%),   /* teal · lower-right (stats) */
+  radial-gradient(85% 50% at 12% 100%,rgba(39,66,224,.18),transparent 55%),    /* blue · bottom-left */
+  radial-gradient(60% 42% at 60% 90%,rgba(224,36,126,.10),transparent 60%),    /* pink · lower glow */
+  linear-gradient(180deg,#0c1124 0%,#0a0e1e 55%,#0a0f20 100%)}
 .herostack .hero.dark{background:transparent}
 /* Dark "proof" zone — stats + alumni; transparent so the shared canvas shows through */
 .proof{position:relative;background:transparent}
+.proof .stats .st b{font-family:var(--body);font-weight:700}   /* numbers in Axiata, like the hero heading */
 .proof .stats .st + .st{border-left-color:rgba(255,255,255,.10)}
 .proof .stats .st b{color:#fff}
 .proof .stats .st small{color:#9aa2c0}
