@@ -554,6 +554,7 @@ h1,h2,h3,.sechead h2,.featrow .ft h3,.tl-item h3,.house-card h3,.htile h3{overfl
 .venue .vfeat span{background:var(--cream);border:1px solid var(--line);padding:8px 14px;border-radius:999px;font-size:.82rem;font-weight:700;color:var(--ink-soft)}
 @media(max-width:780px){.venue{grid-template-columns:1fr;gap:24px}}
 .band-deep .venue .vfeat span{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#dce1f1}
+.band-deep .venue .info .addr{color:#AEB6CE}
 
 /* Captain access gate — elevated */
 .gate{position:relative;max-width:440px;margin:0 auto;background:linear-gradient(165deg,var(--dark2),var(--dark));border:1px solid rgba(255,255,255,.1);box-shadow:0 30px 70px rgba(0,0,0,.4);padding:44px 38px;border-radius:var(--radius-lg);text-align:center;border-top:none;overflow:hidden}
