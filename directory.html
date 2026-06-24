@@ -23,7 +23,7 @@
     <div>
       <p class="eyebrow">Cohort 16 · Participant directory</p>
       <h1>Meet your cohort</h1>
-      <p class="sub">Eighty leaders, four Houses, one network. Search, filter, and get to know the people you'll spend the journey with.</p>
+      <p class="sub">One hundred leaders, four Houses, one network. Search, filter, and get to know the people you'll spend the journey with.</p>
     </div>
   </div>
 </div>
@@ -73,7 +73,7 @@
 (function () {
   var HOUSES = { visionaries:"Visionaries", builders:"Builders", purpose:"Purpose", connectors:"Connectors" };
 
-  /* ---------- demo roster: generate a full cohort of 80 ---------- */
+  /* ---------- demo roster: generate a full cohort of 100 ---------- */
   function buildDemo(){
     var first=["Aisyah","Irfan","Wei Ling","Arjun","Nura","Jia Hao","Farah","Daniel","Preetha","Hakim","Mei Yan","Suresh","Liyana","Zikri","Yong Sheng","Anand","Balqis","Wai Kit","Divya","Faiz","Hui Min","Rajesh","Syafiq","Xin Yi","Kavya","Amir","Joey","Vimala","Danish","Qistina","Bryan","Shanti","Haziq","Cheng Han","Nadia","Karthik","Elaine","Rizal","Pavithra","Lukas","Iman","Wen Jie","Sofea","Adam","Li Wei","Meera","Hafiz","Jocelyn","Pravin","Tasha"];
     var last=["Rahman","Zulkifli","Tan","Suresh","Kamal","Lim","Idris","Wong","Maniam","Abdullah","Lee","Krishnan","Hashim","Ng","Pillai","Yusof","Chong","Ramasamy","Aziz","Goh","Ismail","Subramaniam","Teh","Bakar","Loh"];
@@ -89,7 +89,7 @@
     var s=7; function rnd(){ s=(s*9301+49297)%233280; return s/233280; }
     function pick(a){ return a[Math.floor(rnd()*a.length)]; }
     var out=[];
-    for(var i=0;i<80;i++){
+    for(var i=0;i<100;i++){
       var fnm=first[i % first.length], lnm=pick(last);
       var nb=Math.floor(rnd()*3), badges=[];
       for(var b=0;b<nb;b++){ var bd=pick(badgePool); if(badges.indexOf(bd)===-1) badges.push(bd); }
